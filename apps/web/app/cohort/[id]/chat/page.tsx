@@ -10,11 +10,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Send, Paperclip, Smile, Phone, Video, MoreVertical, 
   ArrowLeft, Users, Image as ImageIcon, Mic, Check, CheckCheck,
-  Heart, Reply, ArrowDown
+  Heart, Reply, ArrowDown, AlertCircle, X
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { llmService } from "@/lib/llm-service";
+import { moderateMessage, type ModerationResult } from "@/lib/content-moderation";
 
 // Indian community members with realistic profiles
 const COMMUNITY_MEMBERS: Record<string, Array<{id: string, name: string, avatar: string, role: string, bio: string}>> = {
@@ -184,6 +185,7 @@ export default function CommunityChatPage() {
   
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [moderationError, setModerationError] = useState<ModerationResult | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const scrollToBottom = () => {
@@ -196,6 +198,17 @@ export default function CommunityChatPage() {
   
   const handleSend = async () => {
     if (!newMessage.trim()) return;
+    
+    // Clear previous moderation error
+    setModerationError(null);
+    
+    // Check content moderation
+    const moderationResult = moderateMessage(newMessage);
+    if (!moderationResult.allowed) {
+      // Block message and show alert
+      setModerationError(moderationResult);
+      return;
+    }
     
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -383,6 +396,29 @@ export default function CommunityChatPage() {
         
         {/* Input Area - Telegram Style */}
         <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-t border-border p-2">
+          {/* Content Moderation Alert */}
+          {moderationError && !moderationError.allowed && (
+            <div className="mb-2 mx-2 p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 animate-in slide-in-from-top-2">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-red-800 dark:text-red-200">Content Blocked</p>
+                  <p className="text-xs text-red-700 dark:text-red-300 mt-0.5">{moderationError.message}</p>
+                  {moderationError.blockedWord && (
+                    <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                      Detected: &ldquo;{moderationError.blockedWord}&rdquo;
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setModerationError(null)}
+                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 flex-shrink-0 p-1"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
           <div className="flex items-end gap-2">
             <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-foreground flex-shrink-0">
               <Paperclip className="h-5 w-5" />

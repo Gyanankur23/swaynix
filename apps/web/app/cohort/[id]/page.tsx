@@ -2,11 +2,13 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Calendar, ArrowLeft, Hash, MessageSquare, Heart, Share2, MapPin, Sparkles, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Users, Calendar, ArrowLeft, Hash, MessageSquare, Heart, Share2, MapPin, Sparkles, Check, ChevronDown, ChevronUp, MessageCircle } from "lucide-react";
 
 // All cohorts data with Indian themes
 const COHORTS_DATA: Record<string, any> = {
@@ -116,35 +118,280 @@ const COHORTS_DATA: Record<string, any> = {
   },
 };
 
-const generatePosts = (cohortId: string, cohortName: string, color: string) => [
-  {
-    id: 1,
-    author: "Priya Sharma",
-    avatar: "PS",
-    content: `Just shared some amazing photos from my trip to Kerala in ${cohortName}! The backwaters are absolutely magical. Has anyone else visited recently?`,
-    likes: 234,
-    comments: 45,
-    time: "2 hours ago",
-  },
-  {
-    id: 2,
-    author: "Rohan Gupta",
-    avatar: "RG",
-    content: `Looking for recommendations for the upcoming weekend. What's your favorite spot in ${cohortName}? Need something offbeat!`,
-    likes: 156,
-    comments: 32,
-    time: "5 hours ago",
-  },
-  {
-    id: 3,
-    author: "Ananya Singh",
-    avatar: "AS",
-    content: `Hosted a workshop yesterday and it was amazing! 50+ people joined. The community here is so supportive. Thank you everyone! 🙏`,
-    likes: 567,
-    comments: 89,
-    time: "1 day ago",
-  },
-];
+// Domain-specific posts generator for each community type
+const generateCommunityPosts = (cohortId: string, cohortName: string, color: string) => {
+  const domainPosts: Record<string, Array<{
+    id: number;
+    author: string;
+    avatar: string;
+    content: string;
+    likes: number;
+    comments: number;
+    time: string;
+    commentsList: Array<{id: string; author: string; text: string; time: string; likes: number}>;
+  }>> = {
+    "travel-india": [
+      {
+        id: 1,
+        author: "Priya Sharma",
+        avatar: "PS",
+        content: "Just returned from a magical week in Kerala! The backwaters of Alleppey are absolutely breathtaking. Stayed at a traditional houseboat and woke up to misty mornings 🌴✨ Has anyone else experienced the monsoon magic there?",
+        likes: 234,
+        comments: 45,
+        time: "2 hours ago",
+        commentsList: [
+          { id: "c1", author: "Arjun Mehta", text: "This is on my bucket list! 😍", time: "1h ago", likes: 12 },
+          { id: "c2", author: "Vikram Reddy", text: "Best time to visit is September-October!", time: "45m ago", likes: 8 },
+          { id: "c3", author: "Neha Kumar", text: "The food there is incredible 🍛", time: "30m ago", likes: 5 }
+        ]
+      },
+      {
+        id: 2,
+        author: "Rohan Gupta",
+        avatar: "RG",
+        content: "Planning a road trip from Delhi to Himachal next weekend. Looking for offbeat places away from tourist crowds. Any hidden gems you'd recommend? 🏔️",
+        likes: 156,
+        comments: 32,
+        time: "5 hours ago",
+        commentsList: [
+          { id: "c4", author: "Ananya Singh", text: "Tirthan Valley is pristine!", time: "4h ago", likes: 15 },
+          { id: "c5", author: "Priya Sharma", text: "Check out Shangarh meadows! 🌲", time: "3h ago", likes: 9 }
+        ]
+      },
+      {
+        id: 3,
+        author: "Ananya Singh",
+        avatar: "AS",
+        content: "Hosted a photowalk in Old Delhi yesterday with 30+ members! The architecture, the chaos, the colors - everything was picture perfect. Sharing some shots from Chandni Chowk 📸",
+        likes: 567,
+        comments: 89,
+        time: "1 day ago",
+        commentsList: [
+          { id: "c6", author: "Vikram Reddy", text: "The paratha wali gali shots were amazing!", time: "20h ago", likes: 25 },
+          { id: "c7", author: "Rohan Gupta", text: "When is the next one? Count me in! 🙋‍♂️", time: "18h ago", likes: 18 },
+          { id: "c8", author: "Priya Sharma", text: "Love the spice market captures!", time: "15h ago", likes: 12 }
+        ]
+      }
+    ],
+    "code-mumbai": [
+      {
+        id: 1,
+        author: "Rohan Desai",
+        avatar: "RD",
+        content: "Just shipped our new microservices architecture using Next.js 15 and Docker! The performance boost is insane - 40% faster load times. Happy to share our migration journey if anyone's interested 🚀",
+        likes: 445,
+        comments: 67,
+        time: "3 hours ago",
+        commentsList: [
+          { id: "c1", author: "Sanya Patel", text: "Would love a blog post on this!", time: "2h ago", likes: 22 },
+          { id: "c2", author: "Aditya Joshi", text: "How was the Docker learning curve?", time: "1h ago", likes: 15 },
+          { id: "c3", author: "Meera Krishnan", text: "We did similar migration, happy to connect!", time: "45m ago", likes: 8 }
+        ]
+      },
+      {
+        id: 2,
+        author: "Sanya Patel",
+        avatar: "SP",
+        content: "Anyone attending the React India Conference next month? Would be great to meet fellow Mumbai devs there! Also, we're hosting a pre-conference meetup at our office in BKC 🎯",
+        likes: 289,
+        comments: 54,
+        time: "6 hours ago",
+        commentsList: [
+          { id: "c4", author: "Rohan Desai", text: "Count me in! 🙋‍♂️", time: "5h ago", likes: 12 },
+          { id: "c5", author: "Aditya Joshi", text: "Is it open for juniors too?", time: "4h ago", likes: 8 },
+          { id: "c6", author: "Meera Krishnan", text: "I'll be at the conference!", time: "3h ago", likes: 6 }
+        ]
+      },
+      {
+        id: 3,
+        author: "Aditya Joshi",
+        avatar: "AJ",
+        content: "Built an AI-powered code review tool over the weekend using OpenAI API. It catches bugs, suggests optimizations, and even explains complex logic. DM if you want early access! 🤖",
+        likes: 678,
+        comments: 92,
+        time: "1 day ago",
+        commentsList: [
+          { id: "c7", author: "Rohan Desai", text: "This sounds incredible! 🔥", time: "20h ago", likes: 35 },
+          { id: "c8", author: "Sanya Patel", text: "Does it work with TypeScript?", time: "18h ago", likes: 18 },
+          { id: "c9", author: "Meera Krishnan", text: "Just sent you a DM!", time: "15h ago", likes: 12 }
+        ]
+      }
+    ],
+    "bollywood-beats": [
+      {
+        id: 1,
+        author: "Zara Khan",
+        avatar: "ZK",
+        content: "AR Rahman's new album 'Vendhu Thanindhathu Kaadu' is pure magic! 🎵 The fusion of traditional Tamil folk with modern orchestration is breathtaking. 'Mallipoo' is on repeat! What's your favorite track?",
+        likes: 567,
+        comments: 78,
+        time: "4 hours ago",
+        commentsList: [
+          { id: "c1", author: "Arjun Mehta", text: "The entire album is a masterpiece! 🔥", time: "3h ago", likes: 25 },
+          { id: "c2", author: "Divya Nair", text: "'Kaattumalli' gives me goosebumps!", time: "2h ago", likes: 18 },
+          { id: "c3", author: "Karan Singh", text: "Rahman never disappoints 🙌", time: "1h ago", likes: 12 }
+        ]
+      },
+      {
+        id: 2,
+        author: "Arjun Mehta",
+        avatar: "AM",
+        content: "Found this amazing indie artist from Bangalore - 'When Chai Met Toast'. Their track 'Firefly' is perfect for rainy evenings ☕🍞 Any other indie recommendations?",
+        likes: 234,
+        comments: 45,
+        time: "8 hours ago",
+        commentsList: [
+          { id: "c4", author: "Zara Khan", text: "Love them! Try 'Prateek Kuhad' too 🎸", time: "6h ago", likes: 20 },
+          { id: "c5", author: "Divya Nair", text: "'The Local Train' from Delhi is 🔥", time: "5h ago", likes: 15 }
+        ]
+      },
+      {
+        id: 3,
+        author: "Divya Nair",
+        avatar: "DN",
+        content: "Throwback to the golden era of Bollywood music! 🎬 Created a playlist of 90s hits - Kumar Sanu, Alka Yagnik, Udit Narayan pure nostalgia! Link in comments if anyone wants it 💿",
+        likes: 892,
+        comments: 123,
+        time: "2 days ago",
+        commentsList: [
+          { id: "c6", author: "Zara Khan", text: "The 90s had the best melodies! 🎵", time: "1d ago", likes: 45 },
+          { id: "c7", author: "Karan Singh", text: "Please share the playlist! 😍", time: "20h ago", likes: 32 },
+          { id: "c8", author: "Arjun Mehta", text: "'Tujhe Dekha To' will never get old", time: "18h ago", likes: 28 }
+        ]
+      }
+    ],
+    "foodie-delhi": [
+      {
+        id: 1,
+        author: "Kabir Malhotra",
+        avatar: "KM",
+        content: "Discovered this hidden gem in Old Delhi - Kallu Nihari since 1990! The nihari with khameeri roti is absolutely legendary. Perfect for winter mornings 🍖❄️ Who's joining me next Sunday?",
+        likes: 445,
+        comments: 67,
+        time: "3 hours ago",
+        commentsList: [
+          { id: "c1", author: "Anaya Gupta", text: "Their nihari is the best in Delhi! 🌶️", time: "2h ago", likes: 18 },
+          { id: "c2", author: "Dev Khanna", text: "I'm in! What time? 🙋‍♂️", time: "1h ago", likes: 12 },
+          { id: "c3", author: "Shivani R", text: "Try their paya too! Delicious 😋", time: "45m ago", likes: 8 }
+        ]
+      },
+      {
+        id: 2,
+        author: "Anaya Gupta",
+        avatar: "AG",
+        content: "Weekend baking session result! 🧁 Made these chocolate truffle cupcakes with salted caramel frosting. My kitchen smells like heaven right now. Recipe in comments if anyone wants!",
+        likes: 678,
+        comments: 89,
+        time: "6 hours ago",
+        commentsList: [
+          { id: "c4", author: "Dev Khanna", text: "They look amazing! 🤤", time: "5h ago", likes: 25 },
+          { id: "c5", author: "Kabir Malhotra", text: "Please share the recipe! 🙏", time: "4h ago", likes: 18 },
+          { id: "c6", author: "Shivani R", text: "Can I place an order? 😂", time: "3h ago", likes: 15 }
+        ]
+      },
+      {
+        id: 3,
+        author: "Dev Khanna",
+        avatar: "DK",
+        content: "Cafe hopping in Hauz Khas Village today! Found this amazing Korean cafe with the fluffiest soufflé pancakes. Seoul Kitchen - highly recommend their matcha latte too 🥞☕",
+        likes: 234,
+        comments: 45,
+        time: "1 day ago",
+        commentsList: [
+          { id: "c7", author: "Anaya Gupta", text: "Adding to my list! 📍", time: "20h ago", likes: 12 },
+          { id: "c8", author: "Kabir Malhotra", text: "How are the prices?", time: "18h ago", likes: 8 },
+          { id: "c9", author: "Shivani R", text: "Love that place! 🥰", time: "15h ago", likes: 6 }
+        ]
+      }
+    ],
+    "cricket-fans": [
+      {
+        id: 1,
+        author: "Sourav Das",
+        avatar: "SD",
+        content: "What a match yesterday! That last over had everyone on the edge of their seats. India's bowling in the death overs was exceptional. This is why we love Test cricket! 🏏🇮🇳",
+        likes: 1234,
+        comments: 234,
+        time: "5 hours ago",
+        commentsList: [
+          { id: "c1", author: "Priya Banerjee", text: "Best match of the series! 🔥", time: "4h ago", likes: 45 },
+          { id: "c2", author: "Amit Mishra", text: "Bumrah is a legend! 🐐", time: "3h ago", likes: 38 },
+          { id: "c3", author: "Viraj Patel", text: "That catch in the slips! 😱", time: "2h ago", likes: 28 }
+        ]
+      },
+      {
+        id: 2,
+        author: "Priya Banerjee",
+        avatar: "PB",
+        content: "IPL auction predictions! Who do you think will be the most expensive player this year? My bet is on Shubman Gill or Cameron Green. The bidding wars are going to be intense! 💰🏆",
+        likes: 567,
+        comments: 123,
+        time: "12 hours ago",
+        commentsList: [
+          { id: "c4", author: "Sourav Das", text: "Gill will definitely go high! 📈", time: "10h ago", likes: 25 },
+          { id: "c5", author: "Amit Mishra", text: "Don't underestimate Sam Curran 💪", time: "8h ago", likes: 18 },
+          { id: "c6", author: "Viraj Patel", text: "RCB needs a good bowler tbh 😅", time: "6h ago", likes: 42 }
+        ]
+      },
+      {
+        id: 3,
+        author: "Amit Mishra",
+        avatar: "AM",
+        content: "Gully cricket memories! 🏏 Who else grew up playing with the 'one tip one hand' rule? And the fights over 'pitch pe out hai' 😂 Those were the days!",
+        likes: 892,
+        comments: 156,
+        time: "2 days ago",
+        commentsList: [
+          { id: "c7", author: "Sourav Das", text: "'Last ball hai bhai!' 😂", time: "1d ago", likes: 55 },
+          { id: "c8", author: "Priya Banerjee", text: "'Stumping hai!' every time 😅", time: "20h ago", likes: 42 },
+          { id: "c9", author: "Viraj Patel", text: "Missing those Sunday mornings! 🌅", time: "18h ago", likes: 35 }
+        ]
+      }
+    ],
+    "default": [
+      {
+        id: 1,
+        author: "Community Member",
+        avatar: "CM",
+        content: `Just shared some amazing content from my experience with ${cohortName}! This community is so vibrant and engaging.`,
+        likes: 234,
+        comments: 45,
+        time: "2 hours ago",
+        commentsList: [
+          { id: "c1", author: "Active User", text: "Love this! Thanks for sharing 🙌", time: "1h ago", likes: 12 },
+          { id: "c2", author: "New Member", text: "This is exactly why I joined!", time: "45m ago", likes: 8 }
+        ]
+      },
+      {
+        id: 2,
+        author: "Enthusiast",
+        avatar: "EN",
+        content: `Looking for recommendations related to ${cohortName}. What has been your best experience so far? Drop them in the comments! 🎯`,
+        likes: 156,
+        comments: 32,
+        time: "5 hours ago",
+        commentsList: [
+          { id: "c3", author: "Regular", text: "So many great options! 😊", time: "4h ago", likes: 6 }
+        ]
+      },
+      {
+        id: 3,
+        author: "Host",
+        avatar: "HO",
+        content: "Hosted an amazing event yesterday! 50+ people joined and the energy was incredible. Thank you to everyone who participated. More events coming soon! 🙏✨",
+        likes: 567,
+        comments: 89,
+        time: "1 day ago",
+        commentsList: [
+          { id: "c4", author: "Attendee", text: "It was fantastic! 🔥", time: "20h ago", likes: 25 },
+          { id: "c5", author: "Fan", text: "Can't wait for the next one! 🎉", time: "18h ago", likes: 18 }
+        ]
+      }
+    ]
+  };
+
+  return domainPosts[cohortId] || domainPosts["default"];
+};
 
 const generateMembers = () => [
   { id: 1, name: "Arjun Sharma", avatar: "AS", role: "Admin" },
@@ -165,6 +412,9 @@ export default function CohortPage({ params }: CohortPageProps) {
   const { id } = use(params);
   const [isJoined, setIsJoined] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
 
   // Load joined state from "backend"
   useEffect(() => {
@@ -195,6 +445,42 @@ export default function CohortPage({ params }: CohortPageProps) {
     localStorage.setItem("joined_communities", JSON.stringify(Array.from(joinedSet)));
   };
 
+  const toggleComments = (postId: number) => {
+    setExpandedComments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleLikePost = (postId: number) => {
+    setLikedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleLikeComment = (commentId: string) => {
+    setLikedComments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+  };
+
   const cohort = COHORTS_DATA[id] || {
     id,
     name: id?.split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || "Community",
@@ -209,35 +495,8 @@ export default function CohortPage({ params }: CohortPageProps) {
     admins: ["Community Admin"],
   };
   
-  const posts = [
-    {
-      id: 1,
-      author: "Priya Sharma",
-      avatar: "PS",
-      content: `Just shared some amazing photos from my trip to Kerala in ${cohort.name}! The backwaters are absolutely magical. Has anyone else visited recently?`,
-      likes: 234,
-      comments: 45,
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      author: "Rohan Gupta",
-      avatar: "RG",
-      content: `Looking for recommendations for the upcoming weekend. What's your favorite spot in ${cohort.name}? Need something offbeat!`,
-      likes: 156,
-      comments: 32,
-      time: "5 hours ago",
-    },
-    {
-      id: 3,
-      author: "Ananya Singh",
-      avatar: "AS",
-      content: `Hosted a workshop yesterday and it was amazing! 50+ people joined. The community here is so supportive. Thank you everyone! 🙏`,
-      likes: 567,
-      comments: 89,
-      time: "1 day ago",
-    },
-  ];
+  // Use domain-specific posts for the community
+  const posts = generateCommunityPosts(id, cohort.name, cohort.color);
 
   const members = [
     { id: 1, name: "Arjun Sharma", avatar: "AS", role: "Admin" },
@@ -348,29 +607,144 @@ export default function CohortPage({ params }: CohortPageProps) {
             <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <MessageSquare className="w-6 h-6 text-purple-500" />Recent Discussions
             </h2>
-            {posts.map((post) => (
-              <Card key={post.id} className="bg-card border-0 shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="w-12 h-12">
-                      <AvatarFallback className="font-bold text-white" style={{ backgroundColor: cohort.color }}>{post.avatar}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-bold text-card-foreground">{post.author}</p>
-                        <span className="text-muted-foreground text-sm">{post.time}</span>
-                      </div>
-                      <p className="text-muted-foreground leading-relaxed">{post.content}</p>
-                      <div className="flex items-center gap-6 mt-4">
-                        <button className="flex items-center gap-1 text-muted-foreground hover:text-pink-500 transition-colors"><Heart className="w-5 h-5" /><span className="text-sm">{post.likes}</span></button>
-                        <button className="flex items-center gap-1 text-muted-foreground hover:text-purple-500 transition-colors"><MessageSquare className="w-5 h-5" /><span className="text-sm">{post.comments}</span></button>
-                        <button className="flex items-center gap-1 text-muted-foreground hover:text-blue-500 transition-colors"><Share2 className="w-5 h-5" /><span className="text-sm">Share</span></button>
+            {posts.map((post) => {
+              const isCommentsExpanded = expandedComments.has(post.id);
+              const isPostLiked = likedPosts.has(post.id);
+              const visibleComments = isCommentsExpanded 
+                ? post.commentsList 
+                : post.commentsList.slice(0, 2);
+              
+              return (
+                <Card key={post.id} className="bg-card border-0 shadow-lg hover:shadow-xl transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="w-12 h-12">
+                        <AvatarFallback className="font-bold text-white" style={{ backgroundColor: cohort.color }}>{post.avatar}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-card-foreground">{post.author}</p>
+                          <span className="text-muted-foreground text-sm">{post.time}</span>
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed">{post.content}</p>
+                        
+                        {/* Post Actions */}
+                        <div className="flex items-center gap-6 mt-4">
+                          <button 
+                            onClick={() => toggleLikePost(post.id)}
+                            className={`flex items-center gap-1 transition-colors ${
+                              isPostLiked ? "text-pink-500" : "text-muted-foreground hover:text-pink-500"
+                            }`}
+                          >
+                            <Heart className={`w-5 h-5 ${isPostLiked ? "fill-current" : ""}`} />
+                            <span className="text-sm">{post.likes + (isPostLiked ? 1 : 0)}</span>
+                          </button>
+                          <button 
+                            onClick={() => toggleComments(post.id)}
+                            className="flex items-center gap-1 text-muted-foreground hover:text-purple-500 transition-colors"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                            <span className="text-sm">{post.comments}</span>
+                          </button>
+                          <button className="flex items-center gap-1 text-muted-foreground hover:text-blue-500 transition-colors">
+                            <Share2 className="w-5 h-5" />
+                            <span className="text-sm">Share</span>
+                          </button>
+                        </div>
+
+                        {/* Comments Section */}
+                        <div className="mt-4 pt-4 border-t border-border">
+                          {/* View all comments link */}
+                          {post.commentsList.length > 2 && (
+                            <button
+                              onClick={() => toggleComments(post.id)}
+                              className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-3 flex items-center gap-1"
+                            >
+                              {isCommentsExpanded ? (
+                                <>Hide comments <ChevronUp className="w-4 h-4" /></>
+                              ) : (
+                                <>View all {post.comments} comments <ChevronDown className="w-4 h-4" /></>
+                              )}
+                            </button>
+                          )}
+                          
+                          {/* Comments List */}
+                          <AnimatePresence>
+                            <div className="space-y-3">
+                              {visibleComments.map((comment, idx) => {
+                                const isCommentLiked = likedComments.has(comment.id);
+                                return (
+                                  <motion.div
+                                    key={comment.id}
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    className="flex items-start gap-2"
+                                  >
+                                    <Avatar className="w-7 h-7 flex-shrink-0">
+                                      <AvatarFallback className="text-xs bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                                        {comment.author.slice(0, 2).toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-start gap-2">
+                                        <span className="font-semibold text-sm text-foreground">{comment.author}</span>
+                                        <span className="text-sm text-muted-foreground flex-1 break-words">{comment.text}</span>
+                                      </div>
+                                      <div className="flex items-center gap-3 mt-0.5">
+                                        <span className="text-xs text-muted-foreground">{comment.time}</span>
+                                        <button
+                                          onClick={() => toggleLikeComment(comment.id)}
+                                          className={`text-xs transition-colors ${
+                                            isCommentLiked 
+                                              ? "text-pink-500 font-medium" 
+                                              : "text-muted-foreground hover:text-pink-500"
+                                          }`}
+                                        >
+                                          {isCommentLiked ? "Liked" : "Like"}
+                                        </button>
+                                        <span className="text-xs text-muted-foreground">
+                                          {comment.likes + (isCommentLiked ? 1 : 0)} likes
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => toggleLikeComment(comment.id)}
+                                      className={`flex-shrink-0 ${
+                                        isCommentLiked ? "text-pink-500" : "text-muted-foreground"
+                                      }`}
+                                    >
+                                      <Heart className={`w-4 h-4 ${isCommentLiked ? "fill-current" : ""}`} />
+                                    </button>
+                                  </motion.div>
+                                );
+                              })}
+                            </div>
+                          </AnimatePresence>
+                          
+                          {/* Add Comment Input */}
+                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                            <Avatar className="w-7 h-7 flex-shrink-0">
+                              <AvatarFallback className="text-xs bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                                ME
+                              </AvatarFallback>
+                            </Avatar>
+                            <Input
+                              placeholder="Add a comment..."
+                              className="flex-1 h-9 text-sm border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+                            />
+                            <button className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+                              Post
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           <div className="space-y-6">

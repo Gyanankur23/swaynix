@@ -11,7 +11,7 @@ import { useAuth } from "@/components/auth-context";
 import { PostCard } from "@/components/post-card";
 import { 
   Users, MessageCircle, Zap, TrendingUp,
-  Crown, ChevronRight,
+  Crown, ChevronRight, UserPlus, UserCheck,
   Trophy, Megaphone, BarChart3, DollarSign, MousePointer, ShoppingCart
 } from "lucide-react";
 
@@ -71,20 +71,20 @@ export function ProfilePage() {
   // Business Profile View
   if (isBusiness) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-20 pb-24">
+      <div className="min-h-screen bg-background pt-20 pb-24">
         {/* Cover Banner */}
         <div className="h-48 md:h-64 relative overflow-hidden bg-gradient-to-r from-blue-800 via-blue-700 to-blue-800">
           {coverImage && (
             <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/20 to-transparent" />
         </div>
 
         <div className="container mx-auto px-4 -mt-20 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Profile Card */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-1">
-              <Card className="border-0 shadow-xl bg-white dark:bg-slate-900 overflow-visible">
+              <Card className="border-0 shadow-xl bg-card overflow-visible">
                 <CardContent className="p-6 pt-0">
                   {/* Logo */}
                   <div className="-mt-16 mb-4 flex justify-center">
@@ -101,35 +101,35 @@ export function ProfilePage() {
 
                   {/* User Info */}
                   <div className="text-center mb-6">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{user?.name || "Decathlon India"}</h1>
-                    <p className="text-slate-500">@{user?.handle || "decathlon_india"}</p>
-                    <Badge className="mt-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                    <h1 className="text-2xl font-bold text-foreground">{user?.name || "Decathlon India"}</h1>
+                    <p className="text-muted-foreground">@{user?.handle || "decathlon_india"}</p>
+                    <Badge className="mt-2 bg-blue-100 text-blue-700">
                       <Megaphone className="w-3 h-3 mr-1" />
                       Business Account
                     </Badge>
                   </div>
 
-                  <p className="text-slate-600 dark:text-slate-400 text-center mb-6">
+                  <p className="text-muted-foreground text-center mb-6">
                     Leading sports retailer in India. Passionate about making sports accessible to everyone. 🏃‍♂️🚴‍♀️🏊‍♂️
                   </p>
 
                   {/* Stats Grid */}
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">3</div>
-                      <p className="text-xs text-slate-500">Active Ads</p>
+                    <div className="text-center p-3 rounded-xl bg-muted">
+                      <div className="text-2xl font-bold text-foreground">3</div>
+                      <p className="text-xs text-muted-foreground">Active Ads</p>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">12.5K</div>
-                      <p className="text-xs text-slate-500">Total Reach</p>
+                    <div className="text-center p-3 rounded-xl bg-muted">
+                      <div className="text-2xl font-bold text-foreground">12.5K</div>
+                      <p className="text-xs text-muted-foreground">Total Reach</p>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">892</div>
-                      <p className="text-xs text-slate-500">Clicks</p>
+                    <div className="text-center p-3 rounded-xl bg-muted">
+                      <div className="text-2xl font-bold text-foreground">892</div>
+                      <p className="text-xs text-muted-foreground">Clicks</p>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">₹1.25L</div>
-                      <p className="text-xs text-slate-500">Revenue</p>
+                    <div className="text-center p-3 rounded-xl bg-muted">
+                      <div className="text-2xl font-bold text-foreground">₹1.25L</div>
+                      <p className="text-xs text-muted-foreground">Revenue</p>
                     </div>
                   </div>
 
@@ -152,32 +152,32 @@ export function ProfilePage() {
               </Card>
 
               {/* Quick Links */}
-              <Card className="mt-6 border-0 shadow-lg bg-white dark:bg-slate-900">
+              <Card className="mt-6 border-0 shadow-lg bg-card">
                 <CardContent className="p-6">
-                  <h3 className="font-bold text-slate-900 dark:text-white mb-4">Quick Links</h3>
+                  <h3 className="font-bold text-foreground mb-4">Quick Links</h3>
                   <div className="space-y-3">
                     <Link href="/business">
-                      <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors">
                         <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-600">
                           <TrendingUp className="w-5 h-5" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-slate-900 dark:text-white">Dashboard</p>
-                          <p className="text-xs text-slate-500">View performance</p>
+                          <p className="font-medium text-foreground">Dashboard</p>
+                          <p className="text-xs text-muted-foreground">View performance</p>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       </div>
                     </Link>
                     <Link href="/business/create-ad">
-                      <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors">
                         <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-600">
                           <Megaphone className="w-5 h-5" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-slate-900 dark:text-white">Create Ad</p>
-                          <p className="text-xs text-slate-500">New campaign</p>
+                          <p className="font-medium text-foreground">Create Ad</p>
+                          <p className="text-xs text-muted-foreground">New campaign</p>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       </div>
                     </Link>
                   </div>
@@ -187,7 +187,7 @@ export function ProfilePage() {
 
             {/* Right Column - Ads */}
             <div className="lg:col-span-2">
-              <Card className="mb-6 border-0 shadow-sm bg-white dark:bg-slate-900">
+              <Card className="mb-6 border-0 shadow-sm bg-card">
                 <CardContent className="p-4">
                   <div className="flex gap-1">
                     <Button variant="default" className="flex-1 capitalize">
@@ -238,7 +238,7 @@ export function ProfilePage() {
 
 // Original regular user profile component
 function RegularUserProfile() {
-  const { user } = useAuth();
+  const { user, connections, toggleConnection, joinedCohorts } = useAuth();
 
   const profileUser = user || {
     id: "user-guest",
@@ -260,12 +260,19 @@ function RegularUserProfile() {
     { id: "travel-india", name: "Travel India", role: "Contributor", color: "#FF6B9D" },
     { id: "code-mumbai", name: "Code Mumbai", role: "Top Voice", color: "#00D4FF" },
     { id: "bollywood-beats", name: "Bollywood Beats", role: "Member", color: "#9D4EDD" },
-  ].filter((c) => (profileUser.communities || []).includes(c.id));
+  ].filter((c) => joinedCohorts.includes(c.id) || (profileUser.communities || []).includes(c.id));
+
+  // Mock suggested users to follow
+  const suggestedUsers = [
+    { id: "u1", name: "Priya Sharma", handle: "priya_sharma", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400", level: 5 },
+    { id: "u2", name: "Rohan Gupta", handle: "rohan_gupta", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400", level: 8 },
+    { id: "u3", name: "Neha Kumar", handle: "neha_kumar", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400", level: 4 },
+  ];
 
   const profilePosts = [
     {
       id: "profile-1",
-      author: { name: profileUser.name, handle: profileUser.handle, level: profileUser.level },
+      author: { name: profileUser.name, handle: profileUser.handle, level: profileUser.level, avatar: profileUser.avatar },
       cohort: { name: "Code Mumbai", color: "#00D4FF" },
       content: "Shipped a cleaner dark/light theme system today. Feels much closer to production now.",
       image: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200",
@@ -274,7 +281,7 @@ function RegularUserProfile() {
     },
     {
       id: "profile-2",
-      author: { name: profileUser.name, handle: profileUser.handle, level: profileUser.level },
+      author: { name: profileUser.name, handle: profileUser.handle, level: profileUser.level, avatar: profileUser.avatar },
       cohort: { name: "Travel India", color: "#FF6B9D" },
       content: "Planning a Ladakh itinerary: Pangong + Nubra + Hanle. Any must-do detours?",
       image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200",
@@ -283,9 +290,9 @@ function RegularUserProfile() {
     },
     {
       id: "profile-3",
-      author: { name: profileUser.name, handle: profileUser.handle, level: profileUser.level },
+      author: { name: profileUser.name, handle: profileUser.handle, level: profileUser.level, avatar: profileUser.avatar },
       cohort: { name: "Bollywood Beats", color: "#9D4EDD" },
-      content: "Anirudh’s production layering is insane. Any similar recommendations?",
+      content: "Anirudh's production layering is insane. Any similar recommendations?",
       engagement: { likes: 89, comments: 12, shares: 4 },
       timestamp: "2d ago",
     },
@@ -304,20 +311,20 @@ function RegularUserProfile() {
         {coverImage && (
           <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/20 to-transparent" />
       </div>
 
       <div className="container mx-auto px-4 -mt-20 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Profile Card */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-1">
-            <Card className="border-0 shadow-xl bg-white dark:bg-slate-900 overflow-visible">
+            <Card className="border-0 shadow-xl bg-card overflow-visible">
               <CardContent className="p-6 pt-0">
                 {/* Avatar */}
                 <div className="-mt-16 mb-4 flex justify-center">
                   <motion.div whileHover={{ scale: 1.05 }} className="relative">
                     <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 p-1">
-                      <div className="w-full h-full rounded-2xl overflow-hidden bg-white dark:bg-slate-900">
+                      <div className="w-full h-full rounded-2xl overflow-hidden bg-card">
                         <img src={profileUser.avatar} alt={profileUser.name} className="w-full h-full object-cover" />
                       </div>
                     </div>
@@ -329,44 +336,44 @@ function RegularUserProfile() {
 
                 {/* User Info */}
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{profileUser.name}</h1>
-                  <p className="text-slate-500">@{profileUser.handle}</p>
-                  <Badge className="mt-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                  <h1 className="text-2xl font-bold text-foreground">{profileUser.name}</h1>
+                  <p className="text-muted-foreground">@{profileUser.handle}</p>
+                  <Badge className="mt-2 bg-amber-100 text-amber-700">
                     <Crown className="w-3 h-3 mr-1" />
                     Level {profileUser.level} Engager
                   </Badge>
                 </div>
 
-                <p className="text-slate-600 dark:text-slate-400 text-center mb-6">
+                <p className="text-muted-foreground text-center mb-6">
                   Building community-driven products in Mumbai. Love connecting with fellow creators across India.
                 </p>
 
                 {/* Stats Grid - Realistic numbers */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">{profileUser.posts || 0}</div>
-                    <p className="text-xs text-slate-500">Posts</p>
+                  <div className="text-center p-3 rounded-xl bg-muted">
+                    <div className="text-2xl font-bold text-foreground">{profileUser.posts || 0}</div>
+                    <p className="text-xs text-muted-foreground">Posts</p>
                   </div>
-                  <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">{(profileUser.interactions || 0).toLocaleString()}</div>
-                    <p className="text-xs text-slate-500">Interactions</p>
+                  <div className="text-center p-3 rounded-xl bg-muted">
+                    <div className="text-2xl font-bold text-foreground">{(profileUser.interactions || 0).toLocaleString()}</div>
+                    <p className="text-xs text-muted-foreground">Interactions</p>
                   </div>
-                  <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">{profileUser.cohorts || 0}</div>
-                    <p className="text-xs text-slate-500">Cohorts</p>
+                  <div className="text-center p-3 rounded-xl bg-muted">
+                    <div className="text-2xl font-bold text-foreground">{connections.length}</div>
+                    <p className="text-xs text-muted-foreground">Following</p>
                   </div>
-                  <div className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">{profileUser.streak || 0}</div>
-                    <p className="text-xs text-slate-500">Day Streak</p>
+                  <div className="text-center p-3 rounded-xl bg-muted">
+                    <div className="text-2xl font-bold text-foreground">{profileUser.streak || 0}</div>
+                    <p className="text-xs text-muted-foreground">Day Streak</p>
                   </div>
                 </div>
 
                 {/* Badges */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Achievements</h3>
+                  <h3 className="text-sm font-semibold text-foreground mb-3">Achievements</h3>
                   <div className="flex flex-wrap gap-2">
                     {["Early Adopter", "Top Contributor", "Community Champion"].map((badge) => (
-                      <Badge key={badge} variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 text-amber-700 dark:text-amber-400">
+                      <Badge key={badge} variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700">
                         <Trophy className="w-3 h-3 mr-1" />{badge}
                       </Badge>
                     ))}
@@ -376,24 +383,62 @@ function RegularUserProfile() {
             </Card>
 
             {/* Top Cohorts */}
-            <Card className="mt-6 border-0 shadow-lg bg-white dark:bg-slate-900">
+            <Card className="mt-6 border-0 shadow-lg bg-card">
               <CardContent className="p-6">
-                <h3 className="font-bold text-slate-900 dark:text-white mb-4">Active Cohorts</h3>
+                <h3 className="font-bold text-foreground mb-4">Active Cohorts</h3>
                 <div className="space-y-3">
                   {topCohorts.map((cohort) => (
                     <Link key={cohort.id} href={`/cohort/${cohort.id}`}>
-                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                      <motion.div whileHover={{ x: 4 }} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors">
                         <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold" style={{ backgroundColor: cohort.color }}>
                           {cohort.name.charAt(0)}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-slate-900 dark:text-white">{cohort.name}</p>
-                          <p className="text-xs text-slate-500">{cohort.role}</p>
+                          <p className="font-medium text-foreground">{cohort.name}</p>
+                          <p className="text-xs text-muted-foreground">{cohort.role}</p>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       </motion.div>
                     </Link>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Suggested Connections */}
+            <Card className="mt-6 border-0 shadow-lg bg-card">
+              <CardContent className="p-6">
+                <h3 className="font-bold text-foreground mb-4">Suggested to Follow</h3>
+                <div className="space-y-3">
+                  {suggestedUsers.map((suggestedUser) => {
+                    const isFollowing = connections.includes(suggestedUser.id);
+                    return (
+                      <div key={suggestedUser.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={suggestedUser.avatar} />
+                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm">
+                            {suggestedUser.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground text-sm">{suggestedUser.name}</p>
+                          <p className="text-xs text-muted-foreground">@{suggestedUser.handle}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant={isFollowing ? "outline" : "default"}
+                          onClick={() => toggleConnection(suggestedUser.id, suggestedUser.name)}
+                          className="text-xs"
+                        >
+                          {isFollowing ? (
+                            <><UserCheck className="w-3 h-3 mr-1" />Following</>
+                          ) : (
+                            <><UserPlus className="w-3 h-3 mr-1" />Follow</>
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

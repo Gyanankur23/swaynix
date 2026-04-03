@@ -1,10 +1,10 @@
 {
-  "/page": "app/page.js",
+  "/notifications/page": "app/notifications/page.js",
+  "/messages/page": "app/messages/page.js",
   "/profile/page": "app/profile/page.js",
-  "/business/create-ad/page": "app/business/create-ad/page.js",
-  "/feed/page": "app/feed/page.js",
-  "/login/page": "app/login/page.js",
-  "/settings/page": "app/settings/page.js",
-  "/business/analytics/page": "app/business/analytics/page.js",
-  "/business/page": "app/business/page.js"
+  "/cohort/[id]/page": "app/cohort/[id]/page.js",
+  "/cohort/[id]/chat/page": "app/cohort/[id]/chat/page.js",
+  "/page": "app/page.js",
+  "/explore/page": "app/explore/page.js",
+  "/feed/page": "app/feed/page.js"
 }

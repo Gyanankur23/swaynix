@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
-  Send, ShoppingBag, ExternalLink, Sparkles, Trash2
+  Send, ShoppingBag, ExternalLink, Sparkles, Trash2, ChevronDown, ChevronUp
 } from "lucide-react";
-import { useAuth, Post, Ad } from "@/components/auth-context";
+import { useAuth, Post, Ad, Comment } from "@/components/auth-context";
 import Link from "next/link";
 
 export default function FeedPage() {
@@ -105,7 +106,7 @@ export default function FeedPage() {
   );
 }
 
-// Post Card Component
+// Post Card Component with Instagram-style Comments
 function PostCard({
   post,
   liked,
@@ -114,13 +115,40 @@ function PostCard({
   onSave,
   isOwnPost
 }: {
-  post: any;
+  post: Post;
   liked: boolean;
   saved: boolean;
   onLike: () => void;
   onSave: () => void;
   isOwnPost?: boolean;
 }) {
+  const { user, addComment } = useAuth();
+  const [showAllComments, setShowAllComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
+
+  const handleAddComment = () => {
+    if (!commentText.trim() || !user) return;
+    addComment(post.id, commentText.trim());
+    setCommentText("");
+  };
+
+  const handleLikeComment = (commentId: string) => {
+    setLikedComments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+  };
+
+  const visibleComments = showAllComments 
+    ? post.commentsList 
+    : post.commentsList.slice(0, 2);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -186,7 +214,10 @@ function PostCard({
                 <Heart className={`w-6 h-6 ${liked ? "fill-current" : ""}`} />
                 <span className="text-sm">{post.likes}</span>
               </button>
-              <button className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+              <button 
+                onClick={() => setShowAllComments(!showAllComments)}
+                className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+              >
                 <MessageCircle className="w-6 h-6" />
                 <span className="text-sm">{post.comments}</span>
               </button>
@@ -210,7 +241,107 @@ function PostCard({
               )}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">{post.time}</p>
+          
+          {/* Comments Section - Instagram Style */}
+          <div className="border-t border-border pt-3 mt-3">
+            {/* View all comments link */}
+            {post.commentsList.length > 2 && (
+              <button
+                onClick={() => setShowAllComments(!showAllComments)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-2 flex items-center gap-1"
+              >
+                {showAllComments ? (
+                  <>Hide comments <ChevronUp className="w-4 h-4" /></>
+                ) : (
+                  <>View all {post.comments} comments <ChevronDown className="w-4 h-4" /></>
+                )}
+              </button>
+            )}
+            
+            {/* Comments List */}
+            <AnimatePresence>
+              <div className="space-y-2">
+                {visibleComments.map((comment) => (
+                  <motion.div
+                    key={comment.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="flex items-start gap-2"
+                  >
+                    <Avatar className="w-7 h-7 flex-shrink-0">
+                      <AvatarImage src={comment.authorAvatar} />
+                      <AvatarFallback className="text-xs bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                        {comment.author.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-2">
+                        <span className="font-semibold text-sm text-foreground">{comment.author}</span>
+                        <span className="text-sm text-muted-foreground flex-1 break-words">{comment.text}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-0.5">
+                        <span className="text-xs text-muted-foreground">{comment.time}</span>
+                        <button
+                          onClick={() => handleLikeComment(comment.id)}
+                          className={`text-xs transition-colors ${
+                            likedComments.has(comment.id) 
+                              ? "text-red-500 font-medium" 
+                              : "text-muted-foreground hover:text-red-500"
+                          }`}
+                        >
+                          {likedComments.has(comment.id) ? "Liked" : "Like"}
+                        </button>
+                        <span className="text-xs text-muted-foreground">
+                          {comment.likes + (likedComments.has(comment.id) ? 1 : 0)} likes
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleLikeComment(comment.id)}
+                      className={`flex-shrink-0 ${
+                        likedComments.has(comment.id) ? "text-red-500" : "text-muted-foreground"
+                      }`}
+                    >
+                      <Heart className={`w-4 h-4 ${likedComments.has(comment.id) ? "fill-current" : ""}`} />
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+            </AnimatePresence>
+            
+            {/* Add Comment Input */}
+            {user && (
+              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border">
+                <Avatar className="w-7 h-7 flex-shrink-0">
+                  <AvatarImage src={user.avatar} />
+                  <AvatarFallback className="text-xs bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                    {user.name.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <Input
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
+                  placeholder="Add a comment..."
+                  className="flex-1 h-9 text-sm border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 px-0"
+                />
+                <button
+                  onClick={handleAddComment}
+                  disabled={!commentText.trim()}
+                  className={`text-sm font-semibold transition-colors ${
+                    commentText.trim() 
+                      ? "text-primary hover:text-primary/80" 
+                      : "text-muted-foreground cursor-not-allowed"
+                  }`}
+                >
+                  Post
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <p className="text-xs text-muted-foreground mt-3">{post.time}</p>
         </div>
       </Card>
     </motion.div>

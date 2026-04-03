@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   MessageSquare, Send, Search, Hash, Users,
-  Image as ImageIcon, Smile, Paperclip
+  Image as ImageIcon, Smile, Paperclip, AlertCircle, X
 } from "lucide-react";
+import { moderateMessage, type ModerationResult } from "@/lib/content-moderation";
 
 // Community chats instead of private messages
 const COMMUNITY_CHATS = [
@@ -125,6 +126,7 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState(() => COMMUNITY_MESSAGES[COMMUNITY_CHATS[0].id]);
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [moderationError, setModerationError] = useState<ModerationResult | null>(null);
 
   const visibleChats = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -164,6 +166,17 @@ export default function MessagesPage() {
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
+    
+    // Clear any previous moderation errors
+    setModerationError(null);
+    
+    // Check content moderation
+    const moderationResult = moderateMessage(newMessage);
+    if (!moderationResult.allowed) {
+      // Block message and show alert
+      setModerationError(moderationResult);
+      return;
+    }
     
     const newMsg = {
       id: messages.length + 1,
@@ -373,6 +386,32 @@ export default function MessagesPage() {
 
           {/* Message Input */}
           <div className="p-4 bg-card border-t border-border">
+            {/* Content Moderation Alert */}
+            {moderationError && !moderationError.allowed && (
+              <div className="mb-3 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 animate-in slide-in-from-top-2">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-red-800 dark:text-red-200">Content Blocked</p>
+                    <p className="text-xs text-red-700 dark:text-red-300 mt-0.5">{moderationError.message}</p>
+                    {moderationError.suggestion && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">{moderationError.suggestion}</p>
+                    )}
+                    {moderationError.blockedWord && (
+                      <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                        Detected: &ldquo;{moderationError.blockedWord}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setModerationError(null)}
+                    className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 flex-shrink-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" className="text-muted-foreground">
                 <Paperclip className="w-5 h-5" />

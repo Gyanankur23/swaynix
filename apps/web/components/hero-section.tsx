@@ -37,11 +37,11 @@ export function HeroSection() {
   const animationProps = mounted ? {} : { initial: false, animate: false };
 
   return (
-    <div ref={containerRef} className="relative min-h-screen overflow-hidden bg-background dark:bg-gradient-to-br dark:from-slate-950 dark:via-purple-950/40 dark:to-slate-950">
+    <div ref={containerRef} className="relative min-h-screen overflow-hidden bg-background">
       <ParticleBackground />
       
       {/* Light mode creamy peach gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-100/80 via-amber-50/60 to-orange-50/80 dark:hidden pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-100/80 via-amber-50/60 to-orange-50/80 dark:from-transparent dark:via-transparent dark:to-transparent pointer-events-none" />
       
       {/* Floating Background Images */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -90,9 +90,9 @@ export function HeroSection() {
           transition={{ delay: 0.2 }}
           className="flex justify-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-white/10 border border-orange-200/50 dark:border-white/20 shadow-sm">
-            <Sparkles className="w-4 h-4 text-orange-500 dark:text-amber-400" />
-            <span className="text-sm text-slate-700 dark:text-white/80">Anti-FOMO Community Platform</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass shadow-sm">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm text-foreground">Anti-FOMO Community Platform</span>
           </div>
         </motion.div>
 
@@ -108,7 +108,7 @@ export function HeroSection() {
           initial={mounted ? { opacity: 0, y: 20 } : false}
           animate={mounted ? { opacity: 1, y: 0 } : false}
           transition={{ delay: 0.3 }}
-          className="text-3xl md:text-5xl lg:text-6xl font-bold text-center mb-8 text-slate-800 dark:text-white"
+          className="text-3xl md:text-5xl lg:text-6xl font-bold text-center mb-8 text-foreground"
         >
           India&apos;s Community Hub
         </motion.p>
@@ -118,10 +118,10 @@ export function HeroSection() {
           initial={mounted ? { opacity: 0, y: 20 } : false}
           animate={mounted ? { opacity: 1, y: 0 } : false}
           transition={{ delay: 0.4 }}
-          className="text-2xl md:text-3xl lg:text-4xl text-center text-slate-700 dark:text-slate-300 max-w-4xl mx-auto mb-16 leading-relaxed font-medium"
+          className="text-2xl md:text-3xl lg:text-4xl text-center text-muted-foreground max-w-4xl mx-auto mb-16 leading-relaxed font-medium"
         >
           Connect with 50,000+ Indians who share your passion for travel, tech, food & more.
-          <span className="text-orange-600 dark:text-amber-400"> No followers. Just real connections.</span>
+          <span className="text-primary"> No followers. Just real connections.</span>
         </motion.p>
 
         {/* CTA Buttons */}
@@ -138,7 +138,7 @@ export function HeroSection() {
             </Button>
           </Link>
           <Link href="/how-it-works">
-            <Button size="lg" variant="outline" className="border-orange-300/50 text-slate-700 hover:bg-orange-50/50 dark:border-white/20 dark:text-white dark:hover:bg-white/10 px-8 py-6 text-lg rounded-full">
+            <Button size="lg" variant="outline" className="border-primary/50 text-foreground hover:bg-primary/10 px-8 py-6 text-lg rounded-full">
               How It Works
             </Button>
           </Link>
@@ -157,13 +157,13 @@ export function HeroSection() {
               initial={mounted ? { opacity: 0, scale: 0.9 } : false}
               animate={mounted ? { opacity: 1, scale: 1 } : false}
               transition={{ delay: 1 + index * 0.1 }}
-              className="text-center p-6 rounded-2xl bg-white/60 dark:bg-white/5 border border-orange-200/50 dark:border-white/10"
+              className="text-center p-6 rounded-2xl glass"
             >
-              <stat.icon className="w-10 h-10 mx-auto mb-4 text-orange-500 dark:text-amber-400" />
-              <div className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-800 dark:text-white mb-2">
+              <stat.icon className="w-10 h-10 mx-auto mb-4 text-primary" />
+              <div className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground mb-2">
                 <AnimatedCounter value={stat.value} suffix={stat.suffix} />
               </div>
-              <p className="text-slate-600 dark:text-slate-300 text-lg md:text-xl">{stat.label}</p>
+              <p className="text-muted-foreground text-lg md:text-xl">{stat.label}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -195,7 +195,7 @@ export function HeroSection() {
       </motion.div>
 
       {/* Gradient Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-orange-100/50 dark:from-slate-950 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background/80 to-transparent" />
     </div>
   );
 }
@@ -217,10 +217,10 @@ function FloatingCard({ icon: Icon, text, className, delay, mounted }: {
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-white/10 border border-orange-200/50 dark:border-white/20 shadow-sm"
+        className="flex items-center gap-2 px-4 py-2 rounded-full glass shadow-sm"
       >
-        <Icon className="w-4 h-4 text-orange-500 dark:text-amber-400" />
-        <span className="text-sm text-slate-700 dark:text-white/80">{text}</span>
+        <Icon className="w-4 h-4 text-primary" />
+        <span className="text-sm text-foreground">{text}</span>
       </motion.div>
     </motion.div>
   );

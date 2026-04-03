@@ -1,115 +1,65 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth, Notification } from "@/components/auth-context";
+import Link from "next/link";
 import { 
   Heart, MessageCircle, Share2, Bell, Zap, Clock,
-  UserPlus, Crown, TrendingUp, Flame, Star, Sparkles,
-  CheckCircle2, X
+  UserPlus, Crown, TrendingUp, Flame, Star, Sparkles, Users,
+  CheckCircle2, X, AtSign
 } from "lucide-react";
 
-interface Notification {
-  id: string;
-  type: "like" | "comment" | "follow" | "mention" | "achievement" | "trending";
-  user: {
-    name: string;
-    avatar?: string;
-    level: number;
-  };
-  content: string;
-  target?: string;
-  timestamp: string;
-  read: boolean;
-}
-
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    type: "like",
-    user: { name: "Sarah Chen", level: 7 },
-    content: "liked your post in",
-    target: "Tech Enthusiasts",
-    timestamp: "2m ago",
-    read: false,
-  },
-  {
-    id: "2",
-    type: "achievement",
-    user: { name: "System", level: 0 },
-    content: "You've reached Level 5! 🎉",
-    target: "Keep up the great engagement!",
-    timestamp: "1h ago",
-    read: false,
-  },
-  {
-    id: "3",
-    type: "comment",
-    user: { name: "Alex Rivera", level: 12 },
-    content: "commented on your discussion in",
-    target: "AI Innovation",
-    timestamp: "3h ago",
-    read: true,
-  },
-  {
-    id: "4",
-    type: "trending",
-    user: { name: "System", level: 0 },
-    content: "Your cohort is trending! 🔥",
-    target: "Web3 Builders",
-    timestamp: "5h ago",
-    read: true,
-  },
-  {
-    id: "5",
-    type: "follow",
-    user: { name: "Maya Patel", level: 8 },
-    content: "started following you",
-    target: "",
-    timestamp: "1d ago",
-    read: true,
-  },
-];
-
-const iconMap = {
+const iconMap: Record<Notification["type"], { icon: React.ElementType; color: string; bg: string }> = {
   like: { icon: Heart, color: "text-rose-500", bg: "bg-rose-100 dark:bg-rose-900/30" },
   comment: { icon: MessageCircle, color: "text-blue-500", bg: "bg-blue-100 dark:bg-blue-900/30" },
   follow: { icon: UserPlus, color: "text-green-500", bg: "bg-green-100 dark:bg-green-900/30" },
-  mention: { icon: Sparkles, color: "text-purple-500", bg: "bg-purple-100 dark:bg-purple-900/30" },
-  achievement: { icon: Crown, color: "text-amber-500", bg: "bg-amber-100 dark:bg-amber-900/30" },
-  trending: { icon: Flame, color: "text-orange-500", bg: "bg-orange-100 dark:bg-orange-900/30" },
+  mention: { icon: AtSign, color: "text-purple-500", bg: "bg-purple-100 dark:bg-purple-900/30" },
+  join: { icon: Users, color: "text-amber-500", bg: "bg-amber-100 dark:bg-amber-900/30" },
+  share: { icon: Share2, color: "text-cyan-500", bg: "bg-cyan-100 dark:bg-cyan-900/30" },
 };
 
+function formatTimeAgo(timestamp: number): string {
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return new Date(timestamp).toLocaleDateString();
+}
+
 export function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const { 
+    notifications, 
+    markNotificationRead, 
+    markAllNotificationsRead, 
+    unreadNotificationCount 
+  } = useAuth();
   const [activeTab, setActiveTab] = useState<"all" | "unread">("all");
-  const [isOpen, setIsOpen] = useState(true);
 
   const filteredNotifications = activeTab === "unread" 
     ? notifications.filter(n => !n.read)
     : notifications;
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const markAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    ));
+  const handleMarkRead = (id: string) => {
+    markNotificationRead(id);
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  };
-
-  const dismiss = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const handleDismiss = (id: string) => {
+    // Just mark as read for now - could add remove functionality later
+    markNotificationRead(id);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20 px-4">
+    <div className="min-h-screen bg-background pt-24 pb-20 px-4">
       <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -118,22 +68,23 @@ export function NotificationsPage() {
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                <Bell className="w-8 h-8 text-amber-500" />
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <Bell className="w-8 h-8 text-primary" />
                 Notifications
-                {unreadCount > 0 && (
-                  <Badge className="bg-amber-500 text-white text-lg px-3 py-1">
-                    {unreadCount}
+                {unreadNotificationCount > 0 && (
+                  <Badge className="bg-primary text-primary-foreground text-lg px-3 py-1">
+                    {unreadNotificationCount}
                   </Badge>
                 )}
               </h1>
-              <p className="text-slate-500 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Stay updated with your community activity
               </p>
             </div>
             <Button
               variant="outline"
-              onClick={markAllAsRead}
+              onClick={markAllNotificationsRead}
+              disabled={unreadNotificationCount === 0}
               className="hidden sm:flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
@@ -142,7 +93,7 @@ export function NotificationsPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 p-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm">
+          <div className="flex gap-2 p-1 bg-card rounded-xl shadow-sm border">
             <Button
               variant={activeTab === "all" ? "default" : "ghost"}
               onClick={() => setActiveTab("all")}
@@ -156,9 +107,9 @@ export function NotificationsPage() {
               className="flex-1 rounded-lg"
             >
               Unread
-              {unreadCount > 0 && (
-                <Badge className="ml-2 bg-amber-500 text-white">
-                  {unreadCount}
+              {unreadNotificationCount > 0 && (
+                <Badge className="ml-2 bg-primary text-primary-foreground">
+                  {unreadNotificationCount}
                 </Badge>
               )}
             </Button>
@@ -179,60 +130,59 @@ export function NotificationsPage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ delay: index * 0.05 }}
-                onClick={() => markAsRead(notification.id)}
+                onClick={() => handleMarkRead(notification.id)}
                 className={`mb-3 cursor-pointer ${
                   !notification.read ? "scale-[1.02]" : ""
                 }`}
               >
                 <Card className={`overflow-hidden transition-all hover:shadow-lg ${
                   !notification.read 
-                    ? "bg-white dark:bg-slate-900 border-amber-500/30 shadow-md" 
-                    : "bg-white/50 dark:bg-slate-900/50 border-transparent"
+                    ? "bg-card border-primary/30 shadow-md" 
+                    : "bg-card/50 border-transparent"
                 }`}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
-                      {/* Icon */}
+                      {/* Avatar or Icon */}
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${config.bg}`}>
-                        <Icon className={`w-6 h-6 ${config.color}`} />
+                        {notification.fromAvatar ? (
+                          <Avatar className="w-full h-full">
+                            <AvatarImage src={notification.fromAvatar} />
+                            <AvatarFallback>
+                              <Icon className={`w-5 h-5 ${config.color}`} />
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <Icon className={`w-6 h-6 ${config.color}`} />
+                        )}
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="text-slate-800 dark:text-slate-200">
-                              <span className="font-semibold">{notification.user.name}</span>{" "}
-                              {notification.content}{" "}
-                              {notification.target && (
-                                <span className="font-medium text-amber-600 dark:text-amber-400">
-                                  {notification.target}
-                                </span>
-                              )}
+                            <p className="text-foreground">
+                              <span className="font-semibold">{notification.fromUser}</span>{" "}
+                              <span className="text-muted-foreground">{notification.message}</span>
                             </p>
-                            <div className="flex items-center gap-3 mt-2 text-sm text-slate-500">
+                            <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                {notification.timestamp}
+                                {formatTimeAgo(notification.createdAt)}
                               </span>
-                              {notification.user.level > 0 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Lvl {notification.user.level}
-                                </Badge>
-                              )}
                             </div>
                           </div>
                           
                           <div className="flex items-center gap-2">
                             {!notification.read && (
-                              <div className="w-2 h-2 rounded-full bg-amber-500" />
+                              <div className="w-2 h-2 rounded-full bg-primary" />
                             )}
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-slate-400 hover:text-slate-600"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                dismiss(notification.id);
+                                handleDismiss(notification.id);
                               }}
                             >
                               <X className="w-4 h-4" />
@@ -254,11 +204,11 @@ export function NotificationsPage() {
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <Bell className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-            <p className="text-xl text-slate-500">
+            <Bell className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
+            <p className="text-xl text-muted-foreground">
               No {activeTab === "unread" ? "unread" : ""} notifications
             </p>
-            <p className="text-slate-400 mt-2">
+            <p className="text-muted-foreground/70 mt-2">
               You're all caught up!
             </p>
           </motion.div>

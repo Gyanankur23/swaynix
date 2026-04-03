@@ -4,62 +4,72 @@
 
 @layer base {
   :root {
-    /* Light Mode - Creamy Peach & White */
-    --background: 30 50% 97%;
-    --foreground: 20 30% 15%;
-    --card: 30 40% 99%;
-    --card-foreground: 20 30% 15%;
-    --popover: 30 40% 99%;
-    --popover-foreground: 20 30% 15%;
-    --primary: 25 85% 56%;
-    --primary-foreground: 30 40% 99%;
-    --secondary: 30 30% 94%;
+    /* Light Mode - Creamy White & Peachy */
+    --background: 35 50% 97%;
+    --foreground: 20 30% 12%;
+    --card: 36 60% 99%;
+    --card-foreground: 20 30% 12%;
+    --popover: 36 60% 99%;
+    --popover-foreground: 20 30% 12%;
+    --primary: 25 85% 52%;
+    --primary-foreground: 36 60% 99%;
+    --secondary: 30 35% 91%;
     --secondary-foreground: 20 30% 20%;
-    --muted: 30 25% 92%;
-    --muted-foreground: 20 20% 45%;
-    --accent: 15 85% 60%;
-    --accent-foreground: 30 40% 99%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 30 40% 98%;
-    --border: 30 25% 88%;
-    --input: 30 25% 88%;
-    --ring: 25 85% 56%;
+    --muted: 32 28% 88%;
+    --muted-foreground: 20 18% 42%;
+    --accent: 15 80% 58%;
+    --accent-foreground: 36 60% 99%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 36 60% 99%;
+    --border: 30 28% 84%;
+    --input: 30 28% 84%;
+    --ring: 25 85% 52%;
     --radius: 0.75rem;
-    
-    /* Custom theme colors */
-    --gradient-start: 25 85% 65%;
-    --gradient-end: 35 80% 75%;
-    --surface: 30 40% 99%;
-    --surface-elevated: 30 40% 100%;
+
+    /* Custom surface tokens */
+    --gradient-start: 32 70% 92%;
+    --gradient-end: 25 75% 82%;
+    --surface: 36 60% 99%;
+    --surface-elevated: 36 55% 100%;
+    --cream: 36 65% 96%;
+    --peach: 22 75% 92%;
+
+    /* Glass effect tokens */
+    --glass-bg: 35 55% 98% / 0.75;
+    --glass-border: 30 28% 84% / 0.6;
   }
 
   .dark {
-    /* Dark Mode - Sleek Purple Gradient (keep as is) */
-    --background: 222 47% 4%;
+    /* Dark Mode - Deep Navy/Purple */
+    --background: 222 47% 6%;
     --foreground: 210 40% 98%;
-    --card: 222 47% 6%;
+    --card: 222 47% 8%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 6%;
+    --popover: 222 47% 8%;
     --popover-foreground: 210 40% 98%;
-    --primary: 262 83% 58%;
+    --primary: 262 83% 62%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 17%;
+    --secondary: 217 33% 15%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
+    --muted: 217 33% 15%;
     --muted-foreground: 215 20% 65%;
-    --accent: 32 95% 54%;
+    --accent: 280 70% 58%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 262 83% 58%;
-    
-    /* Custom theme colors */
-    --gradient-start: 262 83% 40%;
-    --gradient-end: 330 81% 50%;
-    --surface: 222 47% 6%;
-    --surface-elevated: 222 47% 8%;
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 262 83% 62%;
+
+    --gradient-start: 260 60% 12%;
+    --gradient-end: 280 50% 18%;
+    --surface: 222 47% 8%;
+    --surface-elevated: 222 47% 12%;
+    --cream: 222 30% 12%;
+    --peach: 260 40% 14%;
+
+    --glass-bg: 222 47% 8% / 0.7;
+    --glass-border: 217 33% 22% / 0.5;
   }
 }
 
@@ -73,39 +83,79 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Prevent flash of wrong theme */
+    transition: background-color 0.3s ease, color 0.2s ease;
+  }
+}
+
+@layer components {
+  /* Glass morphism - works in both themes */
+  .glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: hsl(var(--glass-bg, 35 55% 98% / 0.75));
+    border: 1px solid hsl(var(--glass-border, 30 28% 84% / 0.6));
+  }
+
+  /* Creamy card surface */
+  .surface-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* Elevated surface */
+  .surface-elevated {
+    background-color: hsl(var(--surface-elevated));
   }
 }
 
 @layer utilities {
-  /* Gradient utilities */
+  /* Gradient backgrounds */
   .gradient-primary {
-    @apply bg-gradient-to-r from-orange-400 to-amber-400;
+    background-image: linear-gradient(135deg, hsl(25 85% 52%), hsl(15 80% 58%));
   }
-  
+
   .gradient-hero {
-    @apply bg-gradient-to-br from-slate-950 via-purple-950/40 to-slate-950;
+    background-image: linear-gradient(
+      to bottom right,
+      hsl(var(--gradient-start)),
+      hsl(var(--gradient-end))
+    );
   }
-  
-  .gradient-light {
-    @apply bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100;
+
+  /* Light theme tinted backgrounds */
+  .bg-cream {
+    background-color: hsl(var(--cream));
   }
-  
-  /* Creamy peach gradient for light mode */
-  .gradient-creamy {
-    @apply bg-gradient-to-br from-orange-100 via-amber-50 to-orange-50;
+
+  .bg-peach {
+    background-color: hsl(var(--peach));
   }
-  
-  /* Text utilities */
+
+  /* Gradient text */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(
+      to right,
+      hsl(25 85% 52%),
+      hsl(15 80% 58%),
+      hsl(330 75% 60%)
+    );
   }
-  
-  /* Glass effect */
-  .glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
+
+  /* Smooth theme transitions on all interactive elements */
+  .theme-transition {
+    transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
   }
-  
-  .dark .glass {
-    @apply bg-slate-900/50 border-white/10;
+
+  /* Subtle light mode shadow */
+  .shadow-soft {
+    box-shadow: 0 2px 16px 0 hsl(25 40% 60% / 0.12);
+  }
+
+  .dark .shadow-soft {
+    box-shadow: 0 2px 16px 0 hsl(222 80% 4% / 0.4);
   }
 }

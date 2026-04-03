@@ -8,7 +8,12 @@ import { AuthProvider } from "./auth-context";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange={false}
+      >
         <AppContent>{children}</AppContent>
       </ThemeProvider>
     </AuthProvider>
@@ -16,30 +21,32 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 
 function AppContent({ children }: { children: React.ReactNode }) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const isDarkMode = mounted ? (resolvedTheme === "dark") : true;
-  
+  // Avoid hydration mismatch: render nothing theme-dependent until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#faf7f4] text-[#1e1208]">
+        <main className="pb-20 lg:pb-0 lg:ml-72">{children}</main>
+      </div>
+    );
+  }
+
+  const isDarkMode = resolvedTheme === "dark";
+
   const toggleTheme = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    setTheme(isDarkMode ? "light" : "dark");
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${mounted ? 'bg-background text-foreground' : 'bg-slate-950 text-white'}`}>
-      {mounted && (
-        <Sidebar 
-          isDarkMode={isDarkMode} 
-          onToggleTheme={toggleTheme} 
-        />
-      )}
-      <main className={`pb-20 lg:pb-0 ${mounted ? 'lg:ml-72' : ''}`}>
-        {children}
-      </main>
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      <Sidebar isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+      <main className="pb-20 lg:pb-0 lg:ml-72">{children}</main>
     </div>
   );
 }
