@@ -1,9 +1,8 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/profile/page": "app/profile/page.js",
-  "/cohort/[id]/page": "app/cohort/[id]/page.js",
-  "/cohort/[id]/chat/page": "app/cohort/[id]/chat/page.js",
-  "/notifications/page": "app/notifications/page.js",
   "/explore/page": "app/explore/page.js",
+  "/page": "app/page.js",
+  "/messages/page": "app/messages/page.js",
+  "/notifications/page": "app/notifications/page.js",
+  "/profile/page": "app/profile/page.js",
   "/feed/page": "app/feed/page.js"
 }
