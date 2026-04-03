@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Mode - Creamy Peach & White */
+    --background: 30 50% 97%;
+    --foreground: 20 30% 15%;
+    --card: 30 40% 99%;
+    --card-foreground: 20 30% 15%;
+    --popover: 30 40% 99%;
+    --popover-foreground: 20 30% 15%;
+    --primary: 25 85% 56%;
+    --primary-foreground: 30 40% 99%;
+    --secondary: 30 30% 94%;
+    --secondary-foreground: 20 30% 20%;
+    --muted: 30 25% 92%;
+    --muted-foreground: 20 20% 45%;
+    --accent: 15 85% 60%;
+    --accent-foreground: 30 40% 99%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 30 40% 98%;
+    --border: 30 25% 88%;
+    --input: 30 25% 88%;
+    --ring: 25 85% 56%;
+    --radius: 0.75rem;
+    
+    /* Custom theme colors */
+    --gradient-start: 25 85% 65%;
+    --gradient-end: 35 80% 75%;
+    --surface: 30 40% 99%;
+    --surface-elevated: 30 40% 100%;
+  }
+
+  .dark {
+    /* Dark Mode - Sleek Purple Gradient (keep as is) */
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 32 95% 54%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 262 83% 58%;
+    
+    /* Custom theme colors */
+    --gradient-start: 262 83% 40%;
+    --gradient-end: 330 81% 50%;
+    --surface: 222 47% 6%;
+    --surface-elevated: 222 47% 8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Gradient utilities */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-orange-400 to-amber-400;
+  }
+  
+  .gradient-hero {
+    @apply bg-gradient-to-br from-slate-950 via-purple-950/40 to-slate-950;
+  }
+  
+  .gradient-light {
+    @apply bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100;
+  }
+  
+  /* Creamy peach gradient for light mode */
+  .gradient-creamy {
+    @apply bg-gradient-to-br from-orange-100 via-amber-50 to-orange-50;
+  }
+  
+  /* Text utilities */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500;
+  }
+  
+  /* Glass effect */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .dark .glass {
+    @apply bg-slate-900/50 border-white/10;
+  }
+}

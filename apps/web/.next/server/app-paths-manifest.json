@@ -1,0 +1,10 @@
+{
+  "/page": "app/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/business/create-ad/page": "app/business/create-ad/page.js",
+  "/feed/page": "app/feed/page.js",
+  "/login/page": "app/login/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/business/analytics/page": "app/business/analytics/page.js",
+  "/business/page": "app/business/page.js"
+}

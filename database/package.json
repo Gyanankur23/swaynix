@@ -1,0 +1,16 @@
+{
+  "name": "@swaynix/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Database has no dev server - use npm run seed or npm run schema'",
+    "seed": "node seed.js",
+    "schema": "psql $DATABASE_URL -f schema.sql"
+  },
+  "dependencies": {
+    "pg": "^8.13.0",
+    "dotenv": "^16.4.5",
+    "@faker-js/faker": "^9.0.0"
+  }
+}

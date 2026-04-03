@@ -1,0 +1,19 @@
+{
+  "name": "swaynix",
+  "version": "1.0.0",
+  "description": "Anti-FOMO Community Platform - Cohort Discovery Engine",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "database"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "db:seed": "node database/seed.js",
+    "db:schema": "psql -f database/schema.sql"
+  },
+  "keywords": ["community", "cohorts", "anti-fomo", "jsonb"],
+  "author": "",
+  "license": "ISC"
+}
