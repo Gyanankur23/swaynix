@@ -98,6 +98,7 @@ export interface Notification {
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
+  isLoading: boolean;
   login: (user: User) => void;
   logout: () => void;
   posts: Post[];
@@ -124,6 +125,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoggedIn: false,
+  isLoading: true,
   login: () => {},
   logout: () => {},
   posts: [],
@@ -748,24 +750,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   // ── loading gate ───────────────────────────────────────────────────────
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center animate-pulse">
-            <span className="text-white font-black text-2xl">S</span>
-          </div>
-          <p className="text-muted-foreground">Loading Swaynix...</p>
-        </div>
-      </div>
-    );
-  }
+  // Don't block children rendering during loading to avoid hydration mismatch
+  // Show loading overlay instead
+  const isLoading = !isLoaded;
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isLoggedIn: !!user,
+        isLoading,
         login,
         logout,
         posts,
@@ -790,6 +784,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+      {isLoading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center animate-pulse">
+              <span className="text-white font-black text-2xl">S</span>
+            </div>
+            <p className="text-muted-foreground">Loading Swaynix...</p>
+          </div>
+        </div>
+      )}
     </AuthContext.Provider>
   );
 }
