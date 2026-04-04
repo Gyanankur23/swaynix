@@ -51,7 +51,7 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-background pt-16 pb-24 lg:pb-8 lg:pl-72">
-      <div className="container mx-auto px-4 max-w-2xl">
+      <div className="container mx-auto px-4 max-w-3xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -60,8 +60,8 @@ export default function FeedPage() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
-                <span className="text-white font-black text-lg">E</span>
+              <div className="w-10 h-10 bg-blue-600 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">E</span>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">Swaynix Feed</h1>
@@ -154,13 +154,13 @@ function PostCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <Card className="border-0 shadow-lg overflow-hidden">
+      <Card className="border shadow-sm overflow-hidden mb-6">
         {/* Post Header */}
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10">
               <AvatarImage src={post.authorAvatar} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <AvatarFallback className="bg-blue-600 text-white">
                 {post.author.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -271,7 +271,7 @@ function PostCard({
                   >
                     <Avatar className="w-7 h-7 flex-shrink-0">
                       <AvatarImage src={comment.authorAvatar} />
-                      <AvatarFallback className="text-xs bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                      <AvatarFallback className="text-xs bg-slate-600 text-white">
                         {comment.author.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -315,7 +315,7 @@ function PostCard({
               <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border">
                 <Avatar className="w-7 h-7 flex-shrink-0">
                   <AvatarImage src={user.avatar} />
-                  <AvatarFallback className="text-xs bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                  <AvatarFallback className="text-xs bg-blue-600 text-white">
                     {user.name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -355,11 +355,11 @@ function AdCard({ ad }: { ad: any }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <Card className="border-2 border-blue-500/30 shadow-lg overflow-hidden bg-gradient-to-b from-blue-500/5 to-transparent">
+      <Card className="border shadow-sm overflow-hidden bg-white">
         {/* Ad Header */}
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-lg p-1 flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 bg-white border p-1 flex items-center justify-center">
               <img
                 src={ad.brandLogo}
                 alt={ad.brand}

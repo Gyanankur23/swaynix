@@ -1,2 +1,9 @@
 .aider*
-node_modules
+node_modules/
+.env
+.env.example
+.env.local
+.next
+.DS_Store
+*.log
+.turbo/

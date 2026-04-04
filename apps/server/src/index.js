@@ -280,6 +280,288 @@ app.get('/api/admin/queue-stats', async (req, res) => {
 });
 
 // =============================================
+// Posts API
+// =============================================
+
+// Create a new post
+app.post('/api/posts',
+  body('userId').isString(),
+  body('content').isString().isLength({ min: 1, max: 2000 }),
+  body('cohortId').optional().isString(),
+  body('image').optional().isString(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
+    try {
+      const { userId, content, cohortId, image } = req.body;
+      
+      // Get user info
+      const { rows: userRows } = await pool.query(
+        'SELECT id, username, avatar FROM users WHERE id = $1',
+        [userId]
+      );
+      
+      if (userRows.length === 0) {
+        return res.status(404).json({ success: false, error: 'User not found' });
+      }
+      
+      const user = userRows[0];
+      
+      // Create post
+      const { rows } = await pool.query(
+        `INSERT INTO posts (user_id, content, cohort_id, image, author, author_handle, author_avatar, likes, comments, shares, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, 0, NOW())
+         RETURNING *`,
+        [userId, content, cohortId || null, image || null, user.username, user.username.toLowerCase().replace(/\s/g, ''), user.avatar]
+      );
+      
+      const post = rows[0];
+      
+      res.status(201).json({
+        success: true,
+        data: {
+          id: post.id,
+          userId: post.user_id,
+          content: post.content,
+          image: post.image,
+          cohortId: post.cohort_id,
+          author: post.author,
+          authorHandle: post.author_handle,
+          authorAvatar: post.author_avatar,
+          likes: 0,
+          comments: 0,
+          shares: 0,
+          time: 'Just now',
+          createdAt: post.created_at
+        }
+      });
+    } catch (error) {
+      console.error('Post creation error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Get feed posts
+app.get('/api/posts/feed', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    const userId = req.query.userId;
+    
+    let query;
+    let params;
+    
+    if (userId) {
+      // Get posts from user's cohorts + their own posts
+      query = `
+        SELECT p.*, 
+               EXISTS(SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $1) as is_liked,
+               EXISTS(SELECT 1 FROM post_saves ps WHERE ps.post_id = p.id AND ps.user_id = $1) as is_saved
+        FROM posts p
+        WHERE p.user_id = $1 
+           OR p.cohort_id IN (SELECT cohort_id FROM user_cohorts WHERE user_id = $1)
+        ORDER BY p.created_at DESC
+        LIMIT $2 OFFSET $3
+      `;
+      params = [userId, limit, offset];
+    } else {
+      // Get all posts (public feed)
+      query = `
+        SELECT p.*, false as is_liked, false as is_saved
+        FROM posts p
+        ORDER BY p.created_at DESC
+        LIMIT $1 OFFSET $2
+      `;
+      params = [limit, offset];
+    }
+    
+    const { rows } = await pool.query(query, params);
+    
+    const posts = rows.map(post => ({
+      id: post.id,
+      userId: post.user_id,
+      content: post.content,
+      image: post.image,
+      cohortId: post.cohort_id,
+      author: post.author,
+      authorHandle: post.author_handle,
+      authorAvatar: post.author_avatar,
+      likes: parseInt(post.likes) || 0,
+      comments: parseInt(post.comments) || 0,
+      shares: parseInt(post.shares) || 0,
+      time: formatTime(post.created_at),
+      createdAt: post.created_at,
+      isLiked: post.is_liked,
+      isSaved: post.is_saved
+    }));
+    
+    res.json({
+      success: true,
+      data: posts
+    });
+  } catch (error) {
+    console.error('Feed fetch error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get user posts (for profile)
+app.get('/api/users/:userId/posts', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    
+    const { rows } = await pool.query(
+      `SELECT p.*,
+              EXISTS(SELECT 1 FROM post_likes pl WHERE pl.post_id = p.id AND pl.user_id = $1) as is_liked
+       FROM posts p
+       WHERE p.user_id = $1
+       ORDER BY p.created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
+    );
+    
+    const posts = rows.map(post => ({
+      id: post.id,
+      userId: post.user_id,
+      content: post.content,
+      image: post.image,
+      cohortId: post.cohort_id,
+      author: post.author,
+      authorHandle: post.author_handle,
+      authorAvatar: post.author_avatar,
+      likes: parseInt(post.likes) || 0,
+      comments: parseInt(post.comments) || 0,
+      shares: parseInt(post.shares) || 0,
+      time: formatTime(post.created_at),
+      createdAt: post.created_at
+    }));
+    
+    res.json({
+      success: true,
+      data: posts
+    });
+  } catch (error) {
+    console.error('User posts fetch error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Like/unlike a post
+app.post('/api/posts/:postId/like', 
+  body('userId').isString(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
+    try {
+      const { postId } = req.params;
+      const { userId } = req.body;
+      
+      // Check if already liked
+      const { rows: existing } = await pool.query(
+        'SELECT 1 FROM post_likes WHERE post_id = $1 AND user_id = $2',
+        [postId, userId]
+      );
+      
+      if (existing.length > 0) {
+        // Unlike
+        await pool.query('DELETE FROM post_likes WHERE post_id = $1 AND user_id = $2', [postId, userId]);
+        await pool.query('UPDATE posts SET likes = likes - 1 WHERE id = $1', [postId]);
+      } else {
+        // Like
+        await pool.query('INSERT INTO post_likes (post_id, user_id, created_at) VALUES ($1, $2, NOW())', [postId, userId]);
+        await pool.query('UPDATE posts SET likes = likes + 1 WHERE id = $1', [postId]);
+      }
+      
+      res.json({ success: true, liked: existing.length === 0 });
+    } catch (error) {
+      console.error('Like error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Add comment to post
+app.post('/api/posts/:postId/comments',
+  body('userId').isString(),
+  body('text').isString().isLength({ min: 1, max: 500 }),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
+    try {
+      const { postId } = req.params;
+      const { userId, text } = req.body;
+      
+      // Get user info
+      const { rows: userRows } = await pool.query(
+        'SELECT username, avatar FROM users WHERE id = $1',
+        [userId]
+      );
+      
+      if (userRows.length === 0) {
+        return res.status(404).json({ success: false, error: 'User not found' });
+      }
+      
+      const user = userRows[0];
+      
+      // Create comment
+      const { rows } = await pool.query(
+        `INSERT INTO comments (post_id, user_id, author, author_avatar, text, likes, created_at)
+         VALUES ($1, $2, $3, $4, $5, 0, NOW())
+         RETURNING *`,
+        [postId, userId, user.username, user.avatar, text]
+      );
+      
+      // Update post comment count
+      await pool.query('UPDATE posts SET comments = comments + 1 WHERE id = $1', [postId]);
+      
+      const comment = rows[0];
+      
+      res.status(201).json({
+        success: true,
+        data: {
+          id: comment.id,
+          postId: comment.post_id,
+          userId: comment.user_id,
+          author: comment.author,
+          authorAvatar: comment.author_avatar,
+          text: comment.text,
+          likes: 0,
+          time: 'Just now'
+        }
+      });
+    } catch (error) {
+      console.error('Comment creation error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Helper function to format time
+function formatTime(date) {
+  const now = new Date();
+  const postDate = new Date(date);
+  const diff = Math.floor((now - postDate) / 1000);
+  
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return postDate.toLocaleDateString();
+}
+
+// =============================================
 // Error Handling
 // =============================================
 app.use((err, req, res, next) => {
@@ -302,6 +584,13 @@ app.listen(PORT, () => {
   console.log(`   GET  /api/cohorts/trending`);
   console.log(`   POST /api/cohorts/search`);
   console.log(`   GET  /api/users/:userId/score`);
+  console.log(`   POST /api/posts - Create new post`);
+  console.log(`   GET  /api/posts/feed - Get feed posts`);
+  console.log(`   GET  /api/users/:userId/posts - Get user posts`);
+  console.log(`   POST /api/posts/:postId/like - Like/unlike post`);
+  console.log(`   POST /api/posts/:postId/comments - Add comment`);
 });
 
 module.exports = { app };
+
+

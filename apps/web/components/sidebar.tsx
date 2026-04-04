@@ -79,11 +79,11 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
     : PUBLIC_NAV;
 
   const roleColors = {
-    member: "from-purple-500 to-pink-500",
-    admin: "from-blue-500 to-cyan-500",
-    superadmin: "from-amber-500 to-orange-500",
-    business: "from-blue-600 to-cyan-500",
-    guest: "from-slate-500 to-gray-500",
+    member: "bg-blue-600",
+    admin: "bg-cyan-600",
+    superadmin: "bg-amber-600",
+    business: "bg-cyan-600",
+    guest: "bg-slate-600",
   };
 
   const role = user?.role || "guest";
@@ -103,11 +103,11 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
         {/* Logo */}
         <div className="p-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${userColor} flex items-center justify-center shadow-lg`}>
-              <span className="text-white font-black text-lg">E</span>
+            <div className={`w-10 h-10 bg-blue-600 flex items-center justify-center`}>
+              <span className="text-white font-bold text-lg">E</span>
             </div>
             {!isCollapsed && (
-              <span className="text-xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Swaynix</span>
+              <span className="text-xl font-black text-blue-600">Swaynix</span>
             )}
           </Link>
         </div>
@@ -115,10 +115,10 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
         {/* User Card - Only show when logged in */}
         {isLoggedIn && user && (
           <div className="px-4 mb-6">
-            <div className={`p-4 rounded-2xl bg-muted border border-border ${isCollapsed ? "text-center" : ""}`}>
-              <Avatar className={`w-14 h-14 ring-4 ring-purple-500/30 ${isCollapsed ? "mx-auto" : ""}`}>
+            <div className={`p-4 bg-slate-100 border ${isCollapsed ? "text-center" : ""}`}>
+              <Avatar className={`w-14 h-14 border-2 border-blue-600 ${isCollapsed ? "mx-auto" : ""}`}>
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className={`bg-gradient-to-br ${userColor} text-white text-lg font-bold`}>
+                <AvatarFallback className={`bg-blue-600 text-white text-lg font-bold`}>
                   {user.name?.split(" ").map(n => n[0]).join("") || "U"}
                 </AvatarFallback>
               </Avatar>
@@ -127,11 +127,11 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
                   <h3 className="font-bold text-foreground mt-3">{user.name}</h3>
                   <p className="text-muted-foreground text-sm">@{user.handle}</p>
                   <div className="flex items-center gap-2 mt-2">
-                    <Badge className={`bg-gradient-to-r ${userColor} text-white border-0 text-xs`}>
+                    <Badge className={`bg-blue-600 text-white border-0 text-xs`}>
                       <RoleIcon className="w-3 h-3 mr-1" />
                       {role === "superadmin" ? "Super Admin" : role === "admin" ? "Admin" : role === "business" ? "Business" : "Member"}
                     </Badge>
-                    <Badge variant="outline" className="border-primary/30 text-primary text-xs">
+                    <Badge variant="outline" className="border-blue-600/30 text-blue-600 text-xs">
                       Lvl {user.level}
                     </Badge>
                   </div>
@@ -151,10 +151,10 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
                 <motion.button
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 transition-all ${
                     isActive
-                      ? "bg-primary/10 text-primary border border-primary/30"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
                   <Icon className={`w-5 h-5 ${isActive ? "text-primary" : ""}`} />
@@ -168,14 +168,14 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
         {/* Bottom Section */}
         <div className="p-4 space-y-2 border-t border-border">
           {/* Dark Mode Toggle */}
-          <div className={`flex items-center gap-3 px-4 py-3 rounded-xl bg-muted ${isCollapsed ? "justify-center" : ""}`}>
+          <div className={`flex items-center gap-3 px-4 py-3 bg-slate-100 ${isCollapsed ? "justify-center" : ""}`}>
             {isCollapsed ? (
-              <button onClick={onToggleTheme} className="text-muted-foreground hover:text-foreground">
+              <button onClick={onToggleTheme} className="text-slate-600 hover:text-slate-900">
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
             ) : (
               <>
-                <span className="text-muted-foreground text-sm flex-1">{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
+                <span className="text-slate-600 text-sm flex-1">{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
                 <Switch checked={isDarkMode} onCheckedChange={onToggleTheme} />
               </>
             )}
@@ -184,14 +184,14 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
           {isLoggedIn ? (
             <>
               <Link href="/settings">
-                <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-all ${isCollapsed ? "justify-center" : ""}`}>
+                <button className={`w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all ${isCollapsed ? "justify-center" : ""}`}>
                   <Settings className="w-5 h-5" />
                   {!isCollapsed && <span className="font-medium">Settings</span>}
                 </button>
               </Link>
               <button 
                 onClick={logout}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-all ${isCollapsed ? "justify-center" : ""}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-all ${isCollapsed ? "justify-center" : ""}`}
               >
                 <LogOut className="w-5 h-5" />
                 {!isCollapsed && <span className="font-medium">Logout</span>}
@@ -199,7 +199,7 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
             </>
           ) : (
             <Link href="/login">
-              <button className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-primary hover:bg-primary/10 transition-all ${isCollapsed ? "justify-center" : ""}`}>
+              <button className={`w-full flex items-center gap-3 px-4 py-3 text-blue-600 hover:bg-blue-50 transition-all ${isCollapsed ? "justify-center" : ""}`}>
                 <LogIn className="w-5 h-5" />
                 {!isCollapsed && <span className="font-medium">Login</span>}
               </button>
@@ -224,7 +224,7 @@ export function Sidebar({ isDarkMode, onToggleTheme }: SidebarProps) {
             </button>
           </Link>
           <Link href="/post">
-            <button className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg -mt-6">
+            <button className="flex items-center justify-center w-14 h-14 bg-blue-600 text-white shadow-lg -mt-6">
               <PlusCircle className="w-7 h-7" />
             </button>
           </Link>
