@@ -1,332 +1,315 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { LocationMap } from "@/components/location-map";
 import {
   Search, Sparkles, Users, TrendingUp, MessageSquare,
-  Heart, MapPin, Compass, Flame, Crown, Check
+  Heart, MapPin, Compass, Flame, Crown, Check,
+  Target, Zap, PlusCircle, BarChart3, Globe,
+  ShieldCheck, ArrowUpRight, ChevronRight, UserPlus, UserCheck
 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/components/auth-context";
+import { useToast } from "@/components/ui/toast-provider";
+import { EXPLORE_COHORTS } from "@/lib/cohorts-data";
+import { EXPLORE_PARENT_CATEGORIES } from "@/lib/explore-taxonomy";
+import { listNearbyPeople } from "@/lib/public-profiles";
 
-// 20+ Interest categories
-const CATEGORIES = [
-  { id: "travel", label: "Travel & Explore", icon: "✈️", color: "#FF6B9D", posts: 1234 },
-  { id: "coding", label: "Coding & Tech", icon: "💻", color: "#00D4FF", posts: 5678 },
-  { id: "music", label: "Music & Beats", icon: "🎵", color: "#9D4EDD", posts: 3456 },
-  { id: "dance", label: "Dance & Perform", icon: "💃", color: "#FF006E", posts: 2345 },
-  { id: "cooking", label: "Cooking & Food", icon: "🍳", color: "#FB8500", posts: 4567 },
-  { id: "photography", label: "Photography", icon: "📸", color: "#38B000", posts: 1890 },
-  { id: "fitness", label: "Fitness & Yoga", icon: "🧘", color: "#06FFB4", posts: 2341 },
-  { id: "art", label: "Art & Design", icon: "🎨", color: "#C77DFF", posts: 1234 },
-  { id: "movies", label: "Movies & Cinema", icon: "🎬", color: "#E63946", posts: 3456 },
-  { id: "reading", label: "Books & Reading", icon: "📚", color: "#F4A261", posts: 1876 },
-  { id: "gaming", label: "Gaming & Esports", icon: "🎮", color: "#7209B7", posts: 2987 },
-  { id: "startups", label: "Startups & Biz", icon: "🚀", color: "#00F5FF", posts: 1456 },
-  { id: "sports", label: "Sports & Cricket", icon: "🏏", color: "#1D4ED8", posts: 5678 },
-  { id: "fashion", label: "Fashion & Style", icon: "👗", color: "#EC4899", posts: 2345 },
-  { id: "pets", label: "Pets & Animals", icon: "🐕", color: "#10B981", posts: 1890 },
-  { id: "career", label: "Career & Jobs", icon: "💼", color: "#6366F1", posts: 3456 },
-  { id: "environment", label: "Green Living", icon: "🌱", color: "#059669", posts: 1234 },
-  { id: "finance", label: "Finance & Money", icon: "💰", color: "#F59E0B", posts: 4567 },
-  { id: "parenting", label: "Parenting", icon: "👶", color: "#8B5CF6", posts: 2345 },
-  { id: "lifestyle", label: "Lifestyle", icon: "🏠", color: "#D946EF", posts: 1890 },
-];
+const CATEGORIES = EXPLORE_PARENT_CATEGORIES;
 
-// Cohorts with Indian themes - 20+ diverse communities
-const COHORTS = [
-  { id: "travel-india", name: "Travel India", category: "travel", members: 45600, color: "#FF6B9D", description: "Discover hidden gems across India", image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400" },
-  { id: "code-mumbai", name: "Code Mumbai", category: "coding", members: 12300, color: "#00D4FF", description: "Mumbai's developer community", image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400" },
-  { id: "bollywood-beats", name: "Bollywood Beats", category: "music", members: 78900, color: "#9D4EDD", description: "Desi music lovers unite", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400" },
-  { id: "dance-bhangra", name: "Bhangra & Dance", category: "dance", members: 23400, color: "#FF006E", description: "Punjabi beats and moves", image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=400" },
-  { id: "foodie-delhi", name: "Delhi Foodies", category: "cooking", members: 56700, color: "#FB8500", description: "Street food to fine dining", image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400" },
-  { id: "shutterbugs", name: "Indian Shutterbugs", category: "photography", members: 18900, color: "#38B000", description: "Capture India's beauty", image: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=400" },
-  { id: "yoga-wellness", name: "Yoga & Wellness", category: "fitness", members: 34500, color: "#06FFB4", description: "Mind, body & soul", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400" },
-  { id: "art-culture", name: "Art & Culture", category: "art", members: 12300, color: "#C77DFF", description: "Traditional to contemporary", image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400" },
-  { id: "cinema-club", name: "Cinema Club", category: "movies", members: 45600, color: "#E63946", description: "Bollywood to Hollywood", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400" },
-  { id: "book-worms", name: "Book Worms", category: "reading", members: 23400, color: "#F4A261", description: "Reading circles & discussions", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" },
-  { id: "game-on", name: "Game On", category: "gaming", members: 56700, color: "#7209B7", description: "Esports & casual gaming", image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400" },
-  { id: "startup-hub", name: "Startup Hub", category: "startups", members: 12300, color: "#00F5FF", description: "Founders & innovators", image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400" },
-  // New communities
-  { id: "cricket-fans", name: "Cricket Fans India", category: "sports", members: 89000, color: "#1D4ED8", description: "Bleed blue! Cricket discussions", image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400" },
-  { id: "fashion-desi", name: "Desi Fashion", category: "fashion", members: 34500, color: "#EC4899", description: "Ethnic to modern Indian fashion", image: "https://images.unsplash.com/photo-1583391733950-3bd0a0bd955e?w=400" },
-  { id: "pets-india", name: "Pet Parents India", category: "pets", members: 27800, color: "#10B981", description: "Dogs, cats & desi pets", image: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400" },
-  { id: "career-growth", name: "Career Growth", category: "career", members: 45600, color: "#6366F1", description: "Jobs, skills & mentorship", image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=400" },
-  { id: "sustainability", name: "Green India", category: "environment", members: 18900, color: "#059669", description: "Sustainable living & climate action", image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400" },
-  { id: "finance-tips", name: "Finance & Investing", category: "finance", members: 52300, color: "#F59E0B", description: "Stocks, crypto & savings", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400" },
-  { id: "parenting-india", name: "Indian Parents", category: "parenting", members: 41200, color: "#8B5CF6", description: "Parenting tips & support", image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400" },
-  { id: "home-decor", name: "Home Decor India", category: "lifestyle", members: 29800, color: "#D946EF", description: "Interior design & DIY", image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400" },
-  { id: "language-learn", name: "Language Learners", category: "education", members: 15600, color: "#3B82F6", description: "Hindi, regional & foreign languages", image: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400" },
-  { id: "mental-health", name: "Mental Wellness", category: "health", members: 23400, color: "#14B8A6", description: "Mental health support & awareness", image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=400" },
-];
+const COHORTS = EXPLORE_COHORTS;
 
-// Indian users
 const TRENDING_USERS = [
-  { name: "Priya Sharma", handle: "priya_travels", category: "travel", avatar: "PS", color: "#FF6B9D" },
-  { name: "Rohan Gupta", handle: "rohan_codes", category: "coding", avatar: "RG", color: "#00D4FF" },
-  { name: "Ananya Singh", handle: "ananya_dances", category: "dance", avatar: "AS", color: "#FF006E" },
-  { name: "Vikram Reddy", handle: "vikram_cooks", category: "cooking", avatar: "VR", color: "#FB8500" },
-  { name: "Neha Kumar", handle: "neha_shots", category: "photography", avatar: "NK", color: "#38B000" },
-];
-
-// Community discussions
-const DISCUSSIONS = [
-  {
-    id: 1,
-    title: "Best monsoon destinations in India?",
-    author: "Arjun Mehta",
-    category: "travel",
-    replies: 24,
-    likes: 156,
-    preview: "Planning a trip this July. Thinking about Munnar or Coorg...",
-    time: "2 hours ago",
-  },
-  {
-    id: 2,
-    title: "Remote work cafes in Bangalore",
-    author: "Sanya Patel",
-    category: "coding",
-    replies: 18,
-    likes: 89,
-    preview: "Looking for good WiFi and coffee. Any recommendations?",
-    time: "4 hours ago",
-  },
-  {
-    id: 3,
-    title: "Learning Kathak as an adult - tips?",
-    author: "Divya Nair",
-    category: "dance",
-    replies: 32,
-    likes: 234,
-    preview: "Started classes last month. Any advice for footwork?",
-    time: "6 hours ago",
-  },
-  {
-    id: 4,
-    title: "Authentic Hyderabadi Biryani recipe",
-    author: "Karthik Iyer",
-    category: "cooking",
-    replies: 45,
-    likes: 567,
-    preview: "Grandma's secret recipe with that perfect aroma...",
-    time: "8 hours ago",
-  },
+  { name: "Priya Sharma", handle: "priya_travels", category: "travel", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200", color: "#FF6B9D" },
+  { name: "Rohan Gupta", handle: "rohan_codes", category: "coding", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200", color: "#00D4FF" },
+  { name: "Ananya Singh", handle: "ananya_dances", category: "dance", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200", color: "#FF006E" },
 ];
 
 export default function ExplorePage() {
+  const { toast } = useToast();
+  const { joinedCohorts, toggleCohort, connections, toggleConnection } = useAuth();
   const [activeTab, setActiveTab] = useState("discover");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [joinedCohorts, setJoinedCohorts] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Load joined cohorts from "backend" (localStorage)
-  useEffect(() => {
-    const saved = localStorage.getItem("joined_communities");
-    if (saved) {
-      setJoinedCohorts(new Set(JSON.parse(saved)));
-    }
-  }, []);
+  const handleJoin = (cohortId: string, name: string) => {
+    toggleCohort(cohortId, name);
+    const isJoining = !joinedCohorts.includes(cohortId);
+    toast(isJoining ? `Synchronized with ${name} Hub` : `Signal Disconnected from ${name}`, isJoining ? "success" : "info");
+  };
 
-  const handleJoin = (cohortId: string) => {
-    setJoinedCohorts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(cohortId)) {
-        newSet.delete(cohortId);
-      } else {
-        newSet.add(cohortId);
-      }
-      // Save to "backend"
-      localStorage.setItem("joined_communities", JSON.stringify(Array.from(newSet)));
-      return newSet;
-    });
+  const handleSearch = () => {
+    if (!searchQuery) return;
+    toast(`Initiating Sector Scan for "${searchQuery}"...`, "brand");
   };
 
   return (
-    <div className="min-h-screen bg-background p-6 pt-24">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white">
-            Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500">Communities</span>
+    <div className="min-h-screen bg-white pt-32 pb-40 px-10 md:px-12 lg:pl-80 relative overflow-hidden font-jakarta">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-[1000px] bg-primary/[0.01] blur-[150px] rounded-full pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto space-y-20 relative z-10 text-foreground">
+        <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-8">
+          <div className="inline-flex items-center gap-4 px-10 py-3 bg-primary/5 rounded-full border border-primary/10 text-primary font-bold text-xs uppercase tracking-[0.4em] mb-4">
+             <Globe className="w-6 h-6" />
+             Community Discovery
+          </div>
+          <h1 className="text-8xl lg:text-[10rem] font-bold tracking-tighter leading-none text-foreground drop-shadow-2xl">
+            Explore <span className="text-primary italic">Swaynix</span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Discover 12+ interest groups across India</p>
+          <p className="text-3xl font-medium text-muted-foreground/60 max-w-4xl mx-auto leading-tight">Find and connect with any of our 22 interest categories. Discover real people matching your vibe.</p>
         </motion.div>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input
-              placeholder="Search communities, topics, or people..."
-              className="pl-12 h-14 bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 rounded-2xl text-lg"
-            />
-            <Button className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl">
-              <Sparkles className="w-4 h-4 mr-2" /> Search
-            </Button>
-          </div>
+        {/* Search Interface */}
+        <div className="max-w-4xl mx-auto relative group">
+          <Search className="absolute left-10 top-1/2 -translate-y-1/2 w-10 h-10 text-muted-foreground group-focus-within:text-foreground transition-all duration-300" />
+          <Input
+            placeholder="Search for communities or topics..."
+            className="pl-24 h-28 bg-white border-4 border-primary/5 rounded-[3.5rem] text-3xl font-bold shadow-premium focus:border-primary/20 transition-all pr-64 text-foreground"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <button onClick={handleSearch} className="absolute right-4 top-1/2 -translate-y-1/2 h-20 bg-primary text-white border-none rounded-[2rem] font-bold text-2xl px-12 shadow-2xl transition-all">
+            SEARCH
+          </button>
         </div>
 
-        <div className="flex justify-center gap-2 flex-wrap">
+        {/* Navigation Control */}
+        <div className="flex justify-center flex-wrap gap-6">
           {[
             { id: "discover", label: "Discover", icon: Compass },
-            { id: "categories", label: "Categories", icon: Search },
+            { id: "categories", label: "Categories", icon: Target },
             { id: "nearby", label: "Nearby", icon: MapPin },
-            { id: "discussions", label: "Discussions", icon: MessageSquare },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all ${
+              className={`flex items-center gap-4 px-12 py-6 rounded-[2.5rem] font-bold text-xl tracking-tighter transition-all border-2 ${
                 activeTab === tab.id
-                  ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg"
-                  : "bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700"
+                  ? "bg-primary text-white border-primary shadow-premium scale-105"
+                  : "bg-white text-muted-foreground border-primary/5 hover:border-primary/20 shadow-sm"
               }`}
             >
-              <tab.icon className="w-4 h-4" /> {tab.label}
+              <tab.icon className="w-7 h-7" /> {tab.label}
             </button>
           ))}
         </div>
 
-        {activeTab === "discover" && (
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <Crown className="w-6 h-6 text-amber-400" /> Featured Communities
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {COHORTS.map((cohort, idx) => (
-                  <Link key={cohort.id} href={`/cohort/${cohort.id}`}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      whileHover={{ y: -4 }}
-                      className="group cursor-pointer"
-                    >
-                      <Card className="overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-lg hover:shadow-xl transition-all">
-                        <div className="h-32 relative overflow-hidden">
-                          <img src={cohort.image} alt={cohort.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <div className="absolute bottom-3 left-3">
-                            <span className="text-3xl">{CATEGORIES.find(c => c.id === cohort.category)?.icon}</span>
+        <AnimatePresence mode="wait">
+          {activeTab === "discover" && (
+            <motion.div key="discover" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-24">
+              <div>
+                <div className="flex items-end justify-between mb-12">
+                   <h2 className="text-5xl font-bold text-foreground flex items-center gap-6 tracking-tighter">
+                    <Crown className="w-12 h-12 text-amber-500" /> Popular Hubs
+                   </h2>
+                   <Badge className="bg-primary/5 text-primary border-none font-bold text-xs uppercase tracking-[0.3em] px-8 py-3 rounded-full">TOTAL COMMUNITIES: 22</Badge>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                  {COHORTS.map((cohort, idx) => (
+                    <Link key={cohort.id} href={`/cohort/${cohort.id}`}>
+                      <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        whileHover={{ y: -10 }}
+                        className="group"
+                      >
+                        <Card className="overflow-hidden border-8 border-white shadow-premium rounded-[4rem] bg-white ring-1 ring-primary/5 transition-all group-hover:shadow-[0_40px_80px_rgba(249,115,22,0.15)] group-hover:ring-primary/20">
+                          <div className="h-64 relative overflow-hidden">
+                            <img src={cohort.image} alt={cohort.name} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-125" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
+                            <div className="absolute bottom-6 left-8 flex items-center gap-4">
+                               <div className="w-14 h-14 bg-white/90 backdrop-blur-md rounded-[1.2rem] flex items-center justify-center text-3xl shadow-lg border border-primary/10">{CATEGORIES.find(c => c.id === cohort.category)?.icon || "🛰️"}</div>
+                               <div>
+                                  <Badge className="bg-swaynix-gradient text-foreground font-black italic text-[10px] px-4 py-1.5 rounded-full uppercase tracking-widest border border-primary/10">{cohort.category}</Badge>
+                                  <p className="text-foreground font-black italic text-xs uppercase tracking-widest mt-1 opacity-70 drop-shadow-sm">IDENTIFIED SECTOR</p>
+                               </div>
+                            </div>
                           </div>
-                        </div>
-                        <CardContent className="p-4">
-                          <h3 className="font-bold text-slate-900 dark:text-white">{cohort.name}</h3>
-                          <p className="text-gray-500 text-sm line-clamp-1">{cohort.description}</p>
-                          <div className="flex items-center justify-between mt-3">
-                            <span className="text-sm text-gray-500 flex items-center gap-1">
-                              <Users className="w-4 h-4" /> {(cohort.members / 1000).toFixed(1)}K
-                            </span>
-                            <Button 
-                            size="sm" 
-                            className="rounded-full transition-all"
-                            style={{ 
-                              backgroundColor: joinedCohorts.has(cohort.id) ? "#10B981" : cohort.color 
-                            }}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleJoin(cohort.id);
-                            }}
-                          >
-                            {joinedCohorts.has(cohort.id) ? (
-                              <><Check className="w-4 h-4 mr-1" /> Joined</>
-                            ) : (
-                              "Join"
-                            )}
-                          </Button>
-                          </div>
-                        </CardContent>
+                          <CardContent className="p-10 space-y-6">
+                            <div>
+                                <h3 className="text-3xl font-bold text-foreground tracking-tighter leading-none mb-3">{cohort.name} Hub</h3>
+                                <p className="text-muted-foreground font-medium text-lg leading-relaxed line-clamp-2">"{cohort.description}"</p>
+                            </div>
+                            <div className="flex items-center justify-between pt-6 border-t border-primary/5">
+                              <span className="text-lg font-bold text-foreground flex items-center gap-3">
+                                <Users className="w-6 h-6 text-primary" /> {(cohort.members / 1000).toFixed(1)}K <span className="text-muted-foreground opacity-40">Members</span>
+                              </span>
+                              <Button 
+                                className={`rounded-[1.5rem] font-bold text-lg px-8 h-14 shadow-xl transition-all ${joinedCohorts.includes(cohort.id) ? 'bg-green-500 text-white' : 'bg-primary text-white hover:translate-y-[-2px]'}`}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleJoin(cohort.id, cohort.name); }}
+                              >
+                                {joinedCohorts.includes(cohort.id) ? "Joined" : "Join Hub"}
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Contributors Section */}
+              <div className="pt-20">
+                <div className="flex items-end justify-between mb-12">
+                   <h2 className="text-5xl font-black italic text-foreground flex items-center gap-6 tracking-tighter leading-none">
+                    <Sparkles className="w-12 h-12 text-primary animate-pulse" /> Top Contributors
+                   </h2>
+                   <div className="text-right">
+                      <p className="text-[10px] font-black uppercase text-primary tracking-[0.3em] mb-1 leading-none">PLATFORM STATUS</p>
+                      <p className="text-muted-foreground font-black italic text-lg opacity-40 tracking-tighter leading-none">High-Intensity Human Activity</p>
+                   </div>
+                </div>
+                
+                <div className="flex gap-10 overflow-x-auto pb-12 scrollbar-hide px-4">
+                  {TRENDING_USERS.map((user, idx) => (
+                    <motion.div key={user.handle} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.1 }} className="flex-shrink-0">
+                      <Card className="w-72 bg-white border-8 border-white shadow-premium rounded-[4rem] p-12 text-center group active:scale-95 transition-all ring-1 ring-primary/5 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 h-2 bg-swaynix-gradient" />
+                        <Link href={`/profile/${user.handle}`} className="block">
+                          <Avatar className="w-32 h-32 mx-auto mb-8 border-4 border-white shadow-2xl transition-transform group-hover:scale-110 cursor-pointer">
+                            <AvatarImage src={user.avatar} className="object-cover" />
+                            <AvatarFallback className="bg-primary text-white font-black italic text-4xl">{user.name[0]}</AvatarFallback>
+                          </Avatar>
+                        </Link>
+                        <Link href={`/profile/${user.handle}`} className="hover:text-primary transition-colors">
+                          <h3 className="text-2xl font-bold text-foreground tracking-tighter mb-1">{user.name}</h3>
+                        </Link>
+                        <p className="text-primary font-bold text-sm mb-6 tracking-widest opacity-60">@{user.handle}</p>
+                        <Badge className="bg-primary/5 text-foreground border-none font-bold uppercase tracking-[0.2em] text-[8px] px-4 py-2 rounded-full mb-8">
+                           CATEGORY: {CATEGORIES.find(c => c.id === user.category)?.label || "Platform"}
+                        </Badge>
+                        <Button 
+                          variant={connections.includes(user.handle) ? "outline" : "default"}
+                          className={`w-full h-16 rounded-[1.5rem] font-bold text-lg shadow-xl transition-all ${!connections.includes(user.handle) ? 'bg-primary text-white hover:translate-y-[-2px]' : 'border-primary/20 text-primary'}`}
+                          onClick={() => { toggleConnection(user.handle, user.name); }}
+                        >
+                          {connections.includes(user.handle) ? <UserCheck className="w-5 h-5 mr-3" /> : <Zap className="w-5 h-5 mr-3" />}
+                          {connections.includes(user.handle) ? "CONNECTED" : "CONNECT"}
+                        </Button>
                       </Card>
                     </motion.div>
-                  </Link>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            </motion.div>
+          )}
 
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <Flame className="w-6 h-6 text-orange-400" /> Trending Creators
-              </h2>
-              <div className="flex gap-4 overflow-x-auto pb-4">
-                {TRENDING_USERS.map((user, idx) => (
-                  <motion.div key={user.handle} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.1 }} className="flex-shrink-0">
-                    <Card className="w-48 bg-white dark:bg-slate-800 border-0 shadow-lg">
-                      <CardContent className="p-4 text-center">
-                        <Avatar className="w-16 h-16 mx-auto mb-3" style={{ backgroundColor: user.color + "30" }}>
-                          <AvatarFallback style={{ backgroundColor: user.color, color: "white" }} className="font-bold text-xl">{user.avatar}</AvatarFallback>
-                        </Avatar>
-                        <h3 className="font-bold text-slate-900 dark:text-white">{user.name}</h3>
-                        <p className="text-gray-500 text-sm">@{user.handle}</p>
-                        <Badge className="mt-2" style={{ backgroundColor: user.color + "20", color: user.color, borderColor: user.color }}>
-                          {CATEGORIES.find(c => c.id === user.category)?.label}
-                        </Badge>
+          {activeTab === "categories" && (
+            <motion.div key="categories" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+              {CATEGORIES.map((cat, idx) => (
+                <Link key={cat.id} href={`/explore/categories/${cat.id}`}>
+                  <motion.div
+                    whileHover={{ y: -10, scale: 1.02 }}
+                    className="flex flex-col items-center p-12 bg-white/80 backdrop-blur-3xl rounded-[4rem] border shadow-premium hover:shadow-2xl transition-all group border-primary/5 text-center relative overflow-hidden cursor-pointer h-full"
+                  >
+                    <div className="absolute top-[-20%] right-[-20%] w-[150px] h-[150px] bg-primary/5 blur-[50px] rounded-full group-hover:scale-150 transition-transform duration-700" />
+                    <div className="w-24 h-24 bg-primary/5 rounded-[2rem] mb-10 flex items-center justify-center text-6xl shadow-xl transition-transform group-hover:rotate-12 group-hover:scale-110">{cat.icon}</div>
+                    <h3 className="text-3xl font-black italic tracking-tighter text-foreground mb-4 leading-none">{cat.label}</h3>
+                    <p className="text-muted-foreground font-black italic tracking-[0.2em] text-[10px] uppercase mb-2">{cat.posts.toLocaleString()} ACTIVE SIGNALS</p>
+                    <span className="text-primary font-bold text-xs uppercase tracking-widest flex items-center gap-1">
+                      Sub-niches <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </motion.div>
+                </Link>
+              ))}
+            </motion.div>
+          )}
+
+          {activeTab === "nearby" && (
+            <motion.div key="nearby" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
+              <div>
+                <h2 className="text-4xl font-bold text-foreground tracking-tighter mb-2 flex items-center gap-3">
+                  <MapPin className="w-10 h-10 text-primary" />
+                  People near you
+                </h2>
+                <p className="text-muted-foreground text-lg max-w-2xl">
+                  Connect to add them to your profile. Open a profile to see their bio and posts.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {listNearbyPeople().map((person, idx) => (
+                  <motion.div
+                    key={person.handle}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                  >
+                    <Card className="border-8 border-white shadow-premium rounded-[3rem] bg-white ring-1 ring-primary/5 overflow-hidden h-full flex flex-col">
+                      <CardContent className="p-8 flex flex-col flex-1 gap-4">
+                        <div className="flex items-center gap-4">
+                          <Link href={`/profile/${person.handle}`}>
+                            <Avatar className="w-16 h-16 border-2 border-primary/10 shadow-md hover:ring-2 hover:ring-primary/30 transition-all">
+                              <AvatarImage src={person.avatar} className="object-cover" />
+                              <AvatarFallback className="bg-primary text-white font-bold">{person.name[0]}</AvatarFallback>
+                            </Avatar>
+                          </Link>
+                          <div className="min-w-0 flex-1">
+                            <Link href={`/profile/${person.handle}`} className="hover:text-primary transition-colors">
+                              <h3 className="text-xl font-bold text-foreground truncate">{person.name}</h3>
+                            </Link>
+                            <p className="text-primary font-bold text-sm truncate">@{person.handle}</p>
+                            <p className="text-xs text-muted-foreground font-medium mt-1">{person.city}</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-3 flex-1">{person.bio}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {person.interests.slice(0, 3).map((t) => (
+                            <Badge key={t} variant="outline" className="rounded-full border-primary/15 text-[10px] font-bold">
+                              {t}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                          <Button
+                            variant={connections.includes(person.handle) ? "outline" : "default"}
+                            className={`flex-1 rounded-2xl font-bold h-12 ${connections.includes(person.handle) ? "border-primary/30" : ""}`}
+                            onClick={() => {
+                              toggleConnection(person.handle, person.name);
+                              const next = !connections.includes(person.handle);
+                              toast(next ? `Connected with ${person.name}` : `Disconnected`, next ? "success" : "info");
+                            }}
+                          >
+                            {connections.includes(person.handle) ? (
+                              <>
+                                <UserCheck className="w-4 h-4 mr-2" /> Connected
+                              </>
+                            ) : (
+                              <>
+                                <UserPlus className="w-4 h-4 mr-2" /> Connect
+                              </>
+                            )}
+                          </Button>
+                          <Button variant="secondary" className="rounded-2xl font-bold h-12 px-5 bg-primary/5" asChild>
+                            <Link href={`/profile/${person.handle}`}>View</Link>
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   </motion.div>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "categories" && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {CATEGORIES.map((cat, idx) => (
-              <motion.button
-                key={cat.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.05 }}
-                whileHover={{ scale: 1.02 }}
-                onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-                className={`relative overflow-hidden rounded-2xl p-6 text-left transition-all ${selectedCategory === cat.id ? "ring-2 ring-offset-2 ring-offset-slate-950 ring-white" : ""}`}
-                style={{ background: `linear-gradient(135deg, ${cat.color}20, ${cat.color}05)`, borderColor: selectedCategory === cat.id ? cat.color : "transparent", borderWidth: "2px" }}
-              >
-                <span className="text-4xl mb-3 block">{cat.icon}</span>
-                <h3 className="font-bold text-slate-900 dark:text-white text-lg">{cat.label}</h3>
-                <p className="text-gray-500 text-sm">{cat.posts.toLocaleString()} posts</p>
-              </motion.button>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "nearby" && <LocationMap />}
-
-        {activeTab === "discussions" && (
-          <div className="space-y-4">
-            {DISCUSSIONS.map((discussion) => (
-              <Card key={discussion.id} className="bg-white dark:bg-slate-800 border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="w-12 h-12">
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold">
-                        {discussion.author.split(" ").map(n => n[0]).join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge style={{ backgroundColor: CATEGORIES.find(c => c.id === discussion.category)?.color + "20", color: CATEGORIES.find(c => c.id === discussion.category)?.color }}>
-                          {CATEGORIES.find(c => c.id === discussion.category)?.icon} {CATEGORIES.find(c => c.id === discussion.category)?.label}
-                        </Badge>
-                        <span className="text-gray-500 text-sm">{discussion.time}</span>
-                      </div>
-                      <h3 className="font-bold text-slate-900 dark:text-white text-lg">{discussion.title}</h3>
-                      <p className="text-gray-500 mt-1">{discussion.preview}</p>
-                      <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
-                        <span className="flex items-center gap-1"><MessageSquare className="w-4 h-4" /> {discussion.replies} replies</span>
-                        <span className="flex items-center gap-1"><Heart className="w-4 h-4" /> {discussion.likes} likes</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+              <div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">City radar</h3>
+                <div className="h-[560px] rounded-[4rem] overflow-hidden border-8 border-white shadow-premium ring-1 ring-primary/5">
+                  <LocationMap />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      
+      <div className="p-40 text-center relative z-0">
+         <p className="text-muted-foreground font-black italic text-lg uppercase tracking-[0.4em] opacity-10">END OF SECTOR MAPPING. RE-CALIBRATE RADAR TO CONTINUE SCANNING.</p>
       </div>
     </div>
   );

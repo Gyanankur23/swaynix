@@ -71,9 +71,9 @@ export function ProfilePage() {
   // Business Profile View
   if (isBusiness) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-24">
+      <div className="min-h-screen bg-white pt-20 pb-24">
         {/* Cover Banner */}
-        <div className="h-48 md:h-64 relative overflow-hidden bg-gradient-to-r from-blue-800 via-blue-700 to-blue-800">
+        <div className="h-48 md:h-64 relative overflow-hidden bg-gradient-to-r from-primary via-accent to-primary">
           {coverImage && (
             <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
           )}
@@ -103,7 +103,7 @@ export function ProfilePage() {
                   <div className="text-center mb-6">
                     <h1 className="text-2xl font-bold text-foreground">{user?.name || "Decathlon India"}</h1>
                     <p className="text-muted-foreground">@{user?.handle || "decathlon_india"}</p>
-                    <Badge className="mt-2 bg-blue-100 text-blue-700">
+                    <Badge className="mt-2 bg-primary/20 text-primary border-primary/20">
                       <Megaphone className="w-3 h-3 mr-1" />
                       Business Account
                     </Badge>
@@ -136,13 +136,13 @@ export function ProfilePage() {
                   {/* Action Buttons */}
                   <div className="flex gap-3">
                     <Link href="/business/create-ad" className="flex-1">
-                      <Button className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold">
+                      <Button className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold shadow-lg shadow-primary/20">
                         <Zap className="w-4 h-4 mr-2" />
                         Create Ad
                       </Button>
                     </Link>
                     <Link href="/business/analytics" className="flex-1">
-                      <Button variant="outline" className="w-full border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
+                      <Button variant="outline" className="w-full border-primary/30 text-primary hover:bg-primary/10">
                         <BarChart3 className="w-4 h-4 mr-2" />
                         Analytics
                       </Button>
@@ -158,7 +158,7 @@ export function ProfilePage() {
                   <div className="space-y-3">
                     <Link href="/business">
                       <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors">
-                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-600">
+                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
                           <TrendingUp className="w-5 h-5" />
                         </div>
                         <div className="flex-1">
@@ -305,9 +305,9 @@ function RegularUserProfile() {
   }, [profileUser.handle]);
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-24">
+    <div className="min-h-screen bg-white pt-20 pb-24">
       {/* Cover Banner */}
-      <div className="h-48 md:h-64 relative overflow-hidden bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800">
+      <div className="h-48 md:h-64 relative overflow-hidden bg-gradient-to-r from-primary via-accent to-secondary">
         {coverImage && (
           <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
         )}
@@ -323,12 +323,12 @@ function RegularUserProfile() {
                 {/* Avatar */}
                 <div className="-mt-16 mb-4 flex justify-center">
                   <motion.div whileHover={{ scale: 1.05 }} className="relative">
-                    <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 p-1">
+                    <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary to-accent p-1">
                       <div className="w-full h-full rounded-2xl overflow-hidden bg-card">
                         <img src={profileUser.avatar} alt={profileUser.name} className="w-full h-full object-cover" />
                       </div>
                     </div>
-                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg">
                       {profileUser.level}
                     </div>
                   </motion.div>
@@ -338,7 +338,7 @@ function RegularUserProfile() {
                 <div className="text-center mb-6">
                   <h1 className="text-2xl font-bold text-foreground">{profileUser.name}</h1>
                   <p className="text-muted-foreground">@{profileUser.handle}</p>
-                  <Badge className="mt-2 bg-amber-100 text-amber-700">
+                  <Badge className="mt-2 bg-primary/20 text-primary border-primary/20">
                     <Crown className="w-3 h-3 mr-1" />
                     Level {profileUser.level} Engager
                   </Badge>
@@ -373,7 +373,7 @@ function RegularUserProfile() {
                   <h3 className="text-sm font-semibold text-foreground mb-3">Achievements</h3>
                   <div className="flex flex-wrap gap-2">
                     {["Early Adopter", "Top Contributor", "Community Champion"].map((badge) => (
-                      <Badge key={badge} variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700">
+                      <Badge key={badge} variant="secondary" className="bg-gradient-to-r from-muted to-secondary text-primary">
                         <Trophy className="w-3 h-3 mr-1" />{badge}
                       </Badge>
                     ))}

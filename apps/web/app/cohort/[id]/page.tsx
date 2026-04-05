@@ -9,9 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Users, Calendar, ArrowLeft, Hash, MessageSquare, Heart, Share2, MapPin, Sparkles, Check, ChevronDown, ChevronUp, MessageCircle } from "lucide-react";
+import { EXPLORE_COHORTS, defaultCohortDetail } from "@/lib/cohorts-data";
+import { cohortCoverImage } from "@/lib/cohort-images";
 
-// All cohorts data with Indian themes
-const COHORTS_DATA: Record<string, any> = {
+// Rich copy for hubs we had full copy for — images use deterministic Picsum (always load).
+const COHORT_DETAILED: Record<string, any> = {
   "travel-india": {
     id: "travel-india",
     name: "Travel India",
@@ -20,7 +22,7 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 45600,
     color: "#FF6B9D",
     icon: "✈️",
-    image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
+    image: cohortCoverImage("travel-india"),
     tags: ["Travel", "Backpacking", "Solo Travel", "Road Trips", "Hidden Gems"],
     location: "All India",
     admins: ["Priya Sharma", "Arjun Mehta"],
@@ -33,7 +35,7 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 12300,
     color: "#00D4FF",
     icon: "💻",
-    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800",
+    image: cohortCoverImage("code-mumbai"),
     tags: ["Programming", "Web Dev", "Mobile", "AI/ML", "DevOps"],
     location: "Mumbai",
     admins: ["Rohan Gupta", "Sanya Patel"],
@@ -46,7 +48,7 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 78900,
     color: "#9D4EDD",
     icon: "🎵",
-    image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800",
+    image: cohortCoverImage("bollywood-beats"),
     tags: ["Bollywood", "Indie Music", "Classical", "Fusion", "Playlists"],
     location: "All India",
     admins: ["Neha Kumar", "Vikram Reddy"],
@@ -59,7 +61,7 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 23400,
     color: "#FF006E",
     icon: "💃",
-    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800",
+    image: cohortCoverImage("dance-bhangra"),
     tags: ["Bhangra", "Classical", "Hip Hop", "Contemporary", "Folk"],
     location: "Punjab & Worldwide",
     admins: ["Ananya Singh", "Karthik Iyer"],
@@ -72,7 +74,7 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 56700,
     color: "#FB8500",
     icon: "🍳",
-    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800",
+    image: cohortCoverImage("foodie-delhi"),
     tags: ["Street Food", "Recipes", "Reviews", "Cafe Hopping", "Cooking"],
     location: "Delhi NCR",
     admins: ["Divya Nair", "Rajesh Khanna"],
@@ -85,7 +87,7 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 18900,
     color: "#38B000",
     icon: "📸",
-    image: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=800",
+    image: cohortCoverImage("shutterbugs"),
     tags: ["Photography", "Landscapes", "Portraits", "Street", "Mobile"],
     location: "All India",
     admins: ["Meera Chopra", "Aditya Joshi"],
@@ -98,7 +100,7 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 34500,
     color: "#06FFB4",
     icon: "🧘",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
+    image: cohortCoverImage("yoga-wellness"),
     tags: ["Yoga", "Meditation", "Ayurveda", "Fitness", "Mental Health"],
     location: "All India",
     admins: ["Dr. Priya Patel", "Yogesh Kumar"],
@@ -111,11 +113,18 @@ const COHORTS_DATA: Record<string, any> = {
     member_count: 12300,
     color: "#C77DFF",
     icon: "🎨",
-    image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800",
+    image: cohortCoverImage("art-culture"),
     tags: ["Painting", "Sculpture", "Digital Art", "Culture", "Heritage"],
     location: "All India",
     admins: ["Aarti Sharma", "Krishna Rao"],
   },
+};
+
+const COHORTS_DATA: Record<string, any> = {
+  ...Object.fromEntries(
+    EXPLORE_COHORTS.filter((c) => !COHORT_DETAILED[c.id]).map((c) => [c.id, defaultCohortDetail(c)])
+  ),
+  ...COHORT_DETAILED,
 };
 
 // Domain-specific posts generator for each community type
@@ -489,7 +498,7 @@ export default function CohortPage({ params }: CohortPageProps) {
     member_count: 5000,
     color: "#8B5CF6",
     icon: "🌟",
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800",
+    image: cohortCoverImage(id || "community"),
     tags: ["Community", "Learning", "Sharing"],
     location: "India",
     admins: ["Community Admin"],
@@ -512,7 +521,7 @@ export default function CohortPage({ params }: CohortPageProps) {
   const relatedCohorts = Object.values(COHORTS_DATA).filter((c: any) => c.id !== id).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-20 px-4">
+    <div className="min-h-screen bg-white pt-24 pb-20 px-4">
       <div className="container mx-auto max-w-6xl">
         <Link href="/explore">
           <Button variant="ghost" className="mb-6 -ml-4 gap-2 text-muted-foreground hover:text-foreground">
@@ -523,15 +532,15 @@ export default function CohortPage({ params }: CohortPageProps) {
 
         <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden mb-8">
           <img src={cohort.image} alt={cohort.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/70 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <div className="flex items-end gap-4">
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center text-4xl md:text-5xl shadow-lg" style={{ backgroundColor: cohort.color }}>
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center text-4xl md:text-5xl shadow-lg text-white" style={{ backgroundColor: cohort.color }}>
                 {cohort.icon}
               </div>
               <div className="flex-1">
-                <h1 className="text-3xl md:text-5xl font-black text-white">{cohort.name}</h1>
-                <p className="text-white/80 text-lg">@{cohort.slug}</p>
+                <h1 className="text-3xl md:text-5xl font-black text-foreground drop-shadow-sm">{cohort.name}</h1>
+                <p className="text-muted-foreground text-lg">@{cohort.slug}</p>
               </div>
             </div>
           </div>

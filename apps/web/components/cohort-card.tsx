@@ -50,7 +50,7 @@ export function CohortCard({
           </div>
           
           {isRecommended && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/20 rounded text-xs font-medium text-green-700 dark:text-green-400 shrink-0">
+            <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded text-xs font-medium text-primary shrink-0">
               <Target className="w-3 h-3" />
               {matchScore} match
             </div>
@@ -102,7 +102,7 @@ export function CohortCard({
 
         {/* Matching Topics Highlight */}
         {matchingTopics && matchingTopics.length > 0 && (
-          <p className="text-xs text-green-600 dark:text-green-400">
+          <p className="text-xs text-primary">
             Matches your interests in: {matchingTopics.slice(0, 3).join(", ")}
           </p>
         )}

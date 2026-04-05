@@ -1,355 +1,298 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  ArrowLeft, TrendingUp, Users, MousePointer, ShoppingCart, 
-  DollarSign, Calendar, Download, ArrowUpRight, ArrowDownRight,
-  Target, Eye, Clock
+  ArrowLeft, 
+  TrendingUp, 
+  Users, 
+  MousePointer2, 
+  ShoppingCart, 
+  DollarSign, 
+  Calendar, 
+  Download, 
+  ArrowUpRight, 
+  ArrowDownRight,
+  Target, 
+  Eye, 
+  Clock,
+  BarChart3,
+  Layers,
+  Sparkles,
+  PieChart,
+  Globe,
+  Smartphone,
+  ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-context";
-
-// Analytics data
-const MONTHLY_DATA = [
-  { month: "Jan", reach: 8200, clicks: 580, conversions: 98, revenue: 78500 },
-  { month: "Feb", reach: 9500, clicks: 680, conversions: 115, revenue: 92000 },
-  { month: "Mar", reach: 12470, clicks: 892, conversions: 156, revenue: 124750 },
-];
-
-const COMMUNITY_PERFORMANCE = [
-  { name: "Cricket Fans India", reach: 5420, clicks: 387, conversions: 42, ctr: 7.1 },
-  { name: "Sports & Fitness", reach: 3100, clicks: 245, conversions: 38, ctr: 7.9 },
-  { name: "Yoga & Wellness", reach: 2150, clicks: 156, conversions: 28, ctr: 7.3 },
-  { name: "Travel India", reach: 1800, clicks: 104, conversions: 15, ctr: 5.8 },
-];
-
-const AD_PERFORMANCE = [
-  { 
-    id: "ad-1", 
-    title: "Summer Fitness Sale",
-    impressions: 5420,
-    clicks: 387,
-    ctr: 7.1,
-    cpc: 32.30,
-    conversions: 42,
-    costPerConversion: 298,
-    revenue: 84000,
-    roas: 6.7
-  },
-  { 
-    id: "ad-2", 
-    title: "New Running Collection",
-    impressions: 3890,
-    clicks: 245,
-    ctr: 6.3,
-    cpc: 34.69,
-    conversions: 28,
-    costPerConversion: 304,
-    revenue: 56000,
-    roas: 6.6
-  },
-];
+import { useRouter } from "next/navigation";
 
 export default function BusinessAnalyticsPage() {
+  const router = useRouter();
   const { user } = useAuth();
-  const [timeRange, setTimeRange] = useState("30days");
+  const [activeTab, setActiveTab] = useState("overview");
 
   if (!user || user.role !== "business") {
     return (
-      <div className="min-h-screen bg-background pt-24 pb-20 lg:pl-72 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-bold text-foreground mb-2">Access Denied</h2>
-            <p className="text-muted-foreground">This page is only accessible to business accounts.</p>
-          </CardContent>
+      <div className="min-h-screen bg-white pt-24 flex items-center justify-center">
+        <Card className="max-w-md border-0 shadow-2xl rounded-[2.5rem] p-8 text-center">
+             <h2 className="text-2xl font-black italic tracking-tighter text-red-500">Access Restricted</h2>
+             <p className="text-muted-foreground font-medium mt-2">Partner-level credentials required for analytics governance.</p>
+             <Button onClick={() => router.push('/login')} className="mt-6 bg-primary text-white font-black italic rounded-xl px-10">Verify Identity</Button>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-24 lg:pb-8 lg:pl-72">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link href="/business">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Analytics Dashboard</h1>
-              <p className="text-muted-foreground">Track your campaign performance</p>
+    <div className="min-h-screen bg-white pt-24 pb-20 px-4 md:px-8 lg:pl-72">
+      <div className="max-w-6xl mx-auto space-y-10">
+        
+        {/* High-Impact Header */}
+        <div className="bg-primary p-12 rounded-[3.5rem] text-white shadow-premium relative overflow-hidden group">
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                 <Badge variant="outline" className="text-white border-white/30 font-black italic text-[10px] tracking-widest px-4 py-1">DATA GOVERNANCE v2.0</Badge>
+                 <Badge variant="outline" className="bg-white/10 text-white border-none font-bold text-[10px]">Active Session</Badge>
+              </div>
+              <h1 className="text-6xl font-black italic tracking-tighter leading-none">Partner Analytics</h1>
+              <p className="text-white/80 font-bold max-w-md text-lg italic">Advanced performance signals for {user.name}.</p>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <select 
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="px-4 py-2 rounded-lg bg-muted border-0 text-sm"
-            >
-              <option value="7days">Last 7 days</option>
-              <option value="30days">Last 30 days</option>
-              <option value="90days">Last 90 days</option>
-            </select>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
-              Export
+            <Button className="bg-white text-primary font-black italic h-14 px-10 rounded-2xl shadow-xl hover:scale-105 transition-all">
+               <Download className="w-5 h-5 mr-3" /> Export Quarterly Report
             </Button>
           </div>
+          <BarChart3 className="absolute top-[-30px] right-[-30px] w-80 h-80 text-white/5 rotate-[-12deg] transition-transform group-hover:scale-110 duration-1000" />
         </div>
 
-        {/* Overview Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Total Reach</p>
-                  <p className="text-2xl font-bold">12,470</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-600" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1 mt-2 text-green-500 text-sm">
-                <ArrowUpRight className="w-4 h-4" />
-                <span>+22%</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Clicks</p>
-                  <p className="text-2xl font-bold">892</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <MousePointer className="w-5 h-5 text-purple-600" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1 mt-2 text-green-500 text-sm">
-                <ArrowUpRight className="w-4 h-4" />
-                <span>+21%</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Conversions</p>
-                  <p className="text-2xl font-bold">156</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <ShoppingCart className="w-5 h-5 text-green-600" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1 mt-2 text-green-500 text-sm">
-                <ArrowUpRight className="w-4 h-4" />
-                <span>+22%</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Revenue</p>
-                  <p className="text-2xl font-bold">₹1.25L</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-amber-600" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1 mt-2 text-green-500 text-sm">
-                <ArrowUpRight className="w-4 h-4" />
-                <span>+26%</span>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Global Performance Pulse */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="Total Impressions" value="1.42M" trend="+24%" icon={Eye} color="text-blue-500" />
+          <StatCard title="Active Enagagement" value="92.5K" trend="+18%" icon={MousePointer2} color="text-orange-500" />
+          <StatCard title="Conversions" value="854" trend="+32%" icon={ShoppingCart} color="text-green-500" />
+          <StatCard title="Total Revenue" value="₹4.82L" trend="+15%" icon={DollarSign} color="text-purple-500" />
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-muted">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="ads">Ad Performance</TabsTrigger>
-            <TabsTrigger value="audience">Audience</TabsTrigger>
-          </TabsList>
+        {/* Analytics Infrastructure */}
+        <Tabs defaultValue="overview" onValueChange={setActiveTab} className="space-y-8">
+           <div className="flex justify-start">
+            <TabsList className="bg-muted p-2 h-16 rounded-[1.5rem] border border-primary/5 shadow-inner">
+                <TabsTrigger value="overview" className="rounded-xl font-black italic px-8 h-12 data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
+                  Performance Pulse
+                </TabsTrigger>
+                <TabsTrigger value="distribution" className="rounded-xl font-black italic px-8 h-12 data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
+                  Market Distribution
+                </TabsTrigger>
+                <TabsTrigger value="ad-ops" className="rounded-xl font-black italic px-8 h-12 data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
+                  Ad-Ops Governance
+                </TabsTrigger>
+            </TabsList>
+           </div>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Performance Chart */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg">Performance Trend</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 flex items-end justify-around gap-4">
-                  {MONTHLY_DATA.map((data, idx) => (
-                    <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full flex flex-col gap-1">
-                        <div 
-                          className="w-full bg-blue-500 rounded-t transition-all hover:bg-blue-600"
-                          style={{ height: `${(data.revenue / 150000) * 200}px` }}
-                        />
+           <AnimatePresence mode="wait">
+             <TabsContent value="overview">
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                 {/* Main Revenue Chart (Visual Mock) */}
+                 <Card className="lg:col-span-2 border shadow-premium rounded-[3rem] bg-white overflow-hidden p-10">
+                    <div className="flex justify-between items-end mb-10">
+                      <div>
+                        <h3 className="text-3xl font-black italic tracking-tighter text-foreground">Revenue Trend</h3>
+                        <p className="text-muted-foreground font-medium">Monthly revenue growth index</p>
                       </div>
-                      <span className="text-sm font-medium">{data.month}</span>
-                      <span className="text-xs text-muted-foreground">₹{(data.revenue / 1000).toFixed(0)}K</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Community Performance */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg">Performance by Community</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {COMMUNITY_PERFORMANCE.map((community, idx) => (
-                    <div key={community.name} className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center font-bold">
-                          {idx + 1}
-                        </div>
-                        <div>
-                          <p className="font-medium">{community.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {community.reach.toLocaleString()} reach • {community.clicks} clicks
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">{community.ctr}% CTR</p>
-                        <p className="text-sm text-muted-foreground">{community.conversions} sales</p>
+                      <div className="flex gap-4">
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-primary" /> <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">This Quarter</span></div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-muted" /> <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Previous</span></div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    
+                    <div className="h-64 flex items-end justify-between gap-10">
+                       <Bar val={45} label="JAN" color="bg-primary/20" />
+                       <Bar val={65} label="FEB" color="bg-primary/40" />
+                       <Bar val={95} label="MAR" color="bg-primary" active />
+                       <Bar val={55} label="APR" color="bg-primary/30" />
+                       <Bar val={75} label="MAY" color="bg-primary/60" />
+                       <Bar val={85} label="JUN" color="bg-primary/80" />
+                    </div>
+                 </Card>
 
-          <TabsContent value="ads" className="space-y-6">
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg">Ad Performance Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-3 px-4 font-medium">Ad</th>
-                        <th className="text-right py-3 px-4 font-medium">Impressions</th>
-                        <th className="text-right py-3 px-4 font-medium">Clicks</th>
-                        <th className="text-right py-3 px-4 font-medium">CTR</th>
-                        <th className="text-right py-3 px-4 font-medium">Conv.</th>
-                        <th className="text-right py-3 px-4 font-medium">ROAS</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {AD_PERFORMANCE.map((ad) => (
-                        <tr key={ad.id} className="border-b border-border/50">
-                          <td className="py-4 px-4">
-                            <p className="font-medium">{ad.title}</p>
-                          </td>
-                          <td className="text-right py-4 px-4">{ad.impressions.toLocaleString()}</td>
-                          <td className="text-right py-4 px-4">{ad.clicks}</td>
-                          <td className="text-right py-4 px-4">
-                            <Badge variant="secondary">{ad.ctr}%</Badge>
-                          </td>
-                          <td className="text-right py-4 px-4">{ad.conversions}</td>
-                          <td className="text-right py-4 px-4">
-                            <Badge className="bg-green-500">{ad.roas}x</Badge>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                 {/* Top Communities Sidebar */}
+                 <div className="space-y-6">
+                    <Card className="border shadow-premium rounded-[2.5rem] bg-white p-8">
+                       <h3 className="font-black italic text-xl mb-6 flex items-center gap-2">
+                          <Target className="w-5 h-5 text-primary" />
+                          Target Saturation
+                       </h3>
+                       <div className="space-y-5">
+                          <GrowthRow label="Sports & Fitness" value="85%" color="bg-blue-500" />
+                          <GrowthRow label="Professional Codes" value="42%" color="bg-orange-500" />
+                          <GrowthRow label="Travel Enthusiasts" value="68%" color="bg-indigo-500" />
+                       </div>
+                    </Card>
 
-          <TabsContent value="audience" className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-lg">Top Locations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Pune"].map((city, idx) => (
-                      <div key={city} className="flex items-center justify-between">
-                        <span>{city}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary rounded-full"
-                              style={{ width: `${100 - idx * 15}%` }}
-                            />
+                    <Card className="border shadow-premium rounded-[2.5rem] bg-gradient-to-br from-primary to-orange-400 p-8 text-white relative overflow-hidden">
+                       <div className="relative z-10 flex flex-col justify-between h-full">
+                          <Sparkles className="w-10 h-10 mb-4" />
+                          <div>
+                             <p className="text-2xl font-black italic tracking-tighter">AI Optimization Potential</p>
+                             <p className="text-white/80 text-xs font-medium mt-1">Platform signal analysis suggests scaling Friday-ad spend by 12% for maximum ROI.</p>
                           </div>
-                          <span className="text-sm text-muted-foreground w-12 text-right">{100 - idx * 15}%</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                          <Button className="mt-4 bg-white text-primary font-black italic rounded-xl w-full h-12">Apply Auto-Scale</Button>
+                       </div>
+                       <Target className="absolute bottom-[-10%] right-[-10%] w-32 h-32 text-white/10 rotate-12" />
+                    </Card>
+                 </div>
+               </div>
+             </TabsContent>
 
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-lg">Device Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span>Mobile</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-500 rounded-full" style={{ width: "78%" }} />
-                        </div>
-                        <span className="text-sm text-muted-foreground w-12 text-right">78%</span>
+             <TabsContent value="distribution">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <Card className="border shadow-premium rounded-[3rem] p-10 bg-white">
+                      <CardTitle className="text-2xl font-black italic tracking-tight mb-8 flex items-center gap-3">
+                         <Globe className="w-7 h-7 text-primary" />
+                         Geographic Engagement
+                      </CardTitle>
+                      <div className="space-y-6">
+                         {["Maharashtra", "Karnataka", "Delhi NCR", "Tamil Nadu", "Telangana"].map((loc, i) => (
+                           <div key={loc} className="flex justify-between items-center group">
+                              <p className="font-bold text-muted-foreground group-hover:text-foreground transition-colors">{loc}</p>
+                              <div className="flex items-center gap-4">
+                                 <div className="w-40 h-2 bg-muted rounded-full overflow-hidden border">
+                                    <div className="h-full bg-primary" style={{ width: `${90 - i * 15}%` }} />
+                                 </div>
+                                 <span className="text-xs font-black w-8">{90 - i * 15}%</span>
+                              </div>
+                           </div>
+                         ))}
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Desktop</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-green-500 rounded-full" style={{ width: "18%" }} />
-                        </div>
-                        <span className="text-sm text-muted-foreground w-12 text-right">18%</span>
+                   </Card>
+
+                   <Card className="border shadow-premium rounded-[3rem] p-10 bg-white">
+                      <CardTitle className="text-2xl font-black italic tracking-tight mb-8 flex items-center gap-3">
+                         <Smartphone className="w-7 h-7 text-primary" />
+                         Device Logic
+                      </CardTitle>
+                      <div className="space-y-6">
+                        <DeviceRow label="Smartphone Apps" value="82%" icon={Smartphone} color="bg-blue-500" />
+                        <DeviceRow label="Desktop Web" value="15%" icon={Globe} color="bg-green-500" />
+                        <DeviceRow label="Tablets / HUB" value="3%" icon={Layers} color="bg-orange-500" />
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Tablet</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-amber-500 rounded-full" style={{ width: "4%" }} />
-                        </div>
-                        <span className="text-sm text-muted-foreground w-12 text-right">4%</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                   </Card>
+                </div>
+             </TabsContent>
+
+             <TabsContent value="ad-ops">
+                <Card className="border shadow-premium rounded-[3rem] overflow-hidden bg-white">
+                    <CardHeader className="p-10 border-b bg-muted/20">
+                       <CardTitle className="text-2xl font-black italic flex items-center gap-3">
+                          <Layers className="w-7 h-7 text-primary" />
+                          Operational Load Archive
+                       </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                       <div className="divide-y">
+                          <OpRow title="Summer Fitness 2.0" status="ACTIVE" reach="452K" ctr="8.2%" roas="5.2x" />
+                          <OpRow title="Winter Gear Pivot" status="PAUSED" reach="120K" ctr="4.5%" roas="3.1x" />
+                          <OpRow title="Community Flash Sale" status="COMPLETED" reach="890K" ctr="12.4%" roas="8.9x" />
+                       </div>
+                    </CardContent>
+                </Card>
+             </TabsContent>
+           </AnimatePresence>
         </Tabs>
       </div>
     </div>
   );
+}
+
+function StatCard({ title, value, trend, icon: Icon, color }: any) {
+  return (
+    <Card className="border shadow-premium rounded-[2.5rem] bg-white group hover:translate-y-[-4px] transition-all overflow-hidden border-primary/5">
+      <CardContent className="p-8">
+        <div className="flex items-center justify-between mb-4">
+           <div className={`w-12 h-12 ${color.replace('text', 'bg')}/10 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-6`}>
+              <Icon className={`w-6 h-6 ${color}`} />
+           </div>
+           <Badge variant="outline" className="text-[10px] font-black text-green-600 bg-green-50 border-green-100 flex items-center gap-1">
+             <ArrowUpRight className="w-3 h-3" /> {trend}
+          </Badge>
+        </div>
+        <p className="text-4xl font-black italic tracking-tighter text-foreground leading-none">{value}</p>
+        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mt-2">{title}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function Bar({ val, label, color, active }: any) {
+  return (
+    <div className="flex-1 flex flex-col items-center gap-4 group">
+      <div className="w-full relative h-[250px] flex items-end">
+         <motion.div 
+            initial={{ height: 0 }} 
+            animate={{ height: `${val}%` }} 
+            className={`w-full rounded-2xl ${color} shadow-lg transition-all group-hover:scale-105 cursor-pointer origin-bottom`} 
+         />
+         {active && <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-6 bg-primary text-white text-[10px] font-black px-2 py-1 rounded-full">PEAK</div>}
+      </div>
+      <span className={`text-[10px] font-black tracking-widest uppercase italic transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
+    </div>
+  )
+}
+
+function GrowthRow({ label, value, color }: any) {
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-xs font-black italic tracking-tight">
+        <span>{label}</span>
+        <span className="text-primary">{value}</span>
+      </div>
+      <div className="h-2 w-full bg-muted rounded-full overflow-hidden shadow-inner">
+        <div className={`h-full ${color}`} style={{ width: value }} />
+      </div>
+    </div>
+  )
+}
+
+function DeviceRow({ label, value, icon: Icon, color }: any) {
+  return (
+    <div className="flex items-center justify-between p-6 bg-muted/20 rounded-2xl hover:bg-muted/40 transition-all cursor-crosshair">
+       <div className="flex gap-4 items-center">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+             <Icon className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <p className="font-bold text-foreground italic">{label}</p>
+       </div>
+       <div className="text-right">
+          <p className="text-xl font-black text-primary">{value}</p>
+          <div className="h-1 w-12 bg-primary rounded-full ml-auto mt-1" style={{ opacity: parseFloat(value)/100 }} />
+       </div>
+    </div>
+  )
+}
+
+function OpRow({ title, status, reach, ctr, roas }: any) {
+  return (
+    <div className="flex flex-col md:flex-row md:items-center justify-between p-8 hover:bg-primary/[0.02] transition-colors cursor-pointer group">
+       <div className="flex gap-6 items-center">
+          <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center font-black italic text-primary group-hover:bg-primary group-hover:text-white transition-all">
+             {title[0]}
+          </div>
+          <div>
+             <p className="font-black italic text-2xl text-foreground tracking-tight group-hover:text-primary transition-colors">{title}</p>
+             <Badge className={`mt-1 font-bold italic ${status === 'ACTIVE' ? 'bg-green-500' : 'bg-muted text-muted-foreground'}`}>{status}</Badge>
+          </div>
+       </div>
+       <div className="grid grid-cols-3 gap-10 mt-6 md:mt-0 text-right">
+          <div><p className="text-[10px] font-black uppercase text-muted-foreground">Reach</p><p className="font-black italic text-lg">{reach}</p></div>
+          <div><p className="text-[10px] font-black uppercase text-muted-foreground">CTR</p><p className="font-black italic text-lg text-primary">{ctr}</p></div>
+          <div><p className="text-[10px] font-black uppercase text-muted-foreground">ROAS</p><p className="font-black italic text-lg">{roas}</p></div>
+       </div>
+    </div>
+  )
 }

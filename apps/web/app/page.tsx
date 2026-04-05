@@ -17,7 +17,7 @@ export default function HomePage() {
 
   if (isLoggedIn) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center animate-pulse">
             <span className="text-white font-black text-2xl">E</span>

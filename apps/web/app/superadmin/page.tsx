@@ -26,102 +26,66 @@ const ADMINS = [
 
 export default function SuperAdminDashboard() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 pt-24 lg:pl-72">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-white p-8 pt-24 lg:pl-[20rem] font-inter">
+      <div className="max-w-6xl mx-auto space-y-10">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-              <Crown className="w-8 h-8 text-amber-500" />
-              Super Admin
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold text-foreground flex items-center gap-3 tracking-tighter">
+              <Crown className="w-10 h-10 text-amber-500" />
+              Swaynix Super Admin
             </h1>
-            <p className="text-slate-500 mt-1">Platform-wide control and analytics</p>
+            <p className="text-muted-foreground font-medium italic">Global infrastructure control and platform analytics</p>
           </div>
-          <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 px-4 py-2">
+          <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 px-6 py-2 rounded-full font-bold">
             <Shield className="w-4 h-4 mr-2" />
-            Super Access
+            UNRESTRICTED ACCESS
           </Badge>
         </div>
 
         {/* Platform Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
-            <CardContent className="p-4">
-              <Users className="w-6 h-6 text-amber-500 mb-2" />
-              <p className="text-2xl font-black text-slate-900 dark:text-white">{(PLATFORM_STATS.totalUsers / 1000).toFixed(1)}K</p>
-              <p className="text-slate-500 text-sm">Total Users</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
-            <CardContent className="p-4">
-              <Zap className="w-6 h-6 text-purple-500 mb-2" />
-              <p className="text-2xl font-black text-slate-900 dark:text-white">{(PLATFORM_STATS.dailyActive / 1000).toFixed(1)}K</p>
-              <p className="text-slate-500 text-sm">Daily Active</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
-            <CardContent className="p-4">
-              <Globe className="w-6 h-6 text-blue-500 mb-2" />
-              <p className="text-2xl font-black text-slate-900 dark:text-white">{PLATFORM_STATS.totalCohorts}</p>
-              <p className="text-slate-500 text-sm">Cohorts</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
-            <CardContent className="p-4">
-              <DollarSign className="w-6 h-6 text-green-500 mb-2" />
-              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{(PLATFORM_STATS.monthlyRevenue / 1000).toFixed(1)}K</p>
-              <p className="text-slate-500 text-sm">Monthly Revenue</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
-            <CardContent className="p-4">
-              <Server className="w-6 h-6 text-emerald-500 mb-2" />
-              <p className="text-2xl font-black text-slate-900 dark:text-white">{PLATFORM_STATS.serverUptime}%</p>
-              <p className="text-slate-500 text-sm">Uptime</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <StatCard icon={Users} title="Total Users" value={`${(PLATFORM_STATS.totalUsers / 1000).toFixed(1)}K`} color="bg-amber-500" />
+          <StatCard icon={Zap} title="Daily Active" value={`${(PLATFORM_STATS.dailyActive / 1000).toFixed(1)}K`} color="bg-primary" />
+          <StatCard icon={Globe} title="Cohorts" value={PLATFORM_STATS.totalCohorts.toString()} color="bg-blue-500" />
+          <StatCard icon={DollarSign} title="Revenue" value={`₹${(PLATFORM_STATS.monthlyRevenue / 1000).toFixed(1)}K`} color="bg-green-500" />
+          <StatCard icon={Server} title="Uptime" value={`${PLATFORM_STATS.serverUptime}%`} color="bg-emerald-500" />
         </div>
 
         {/* Admin Management */}
-        <Card className="bg-white dark:bg-slate-900 border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-slate-900 dark:text-white flex items-center gap-2">
-              <Shield className="w-5 h-5 text-amber-500" />
-              Admin Management
+        <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+          <CardHeader className="p-10 border-b bg-muted/5 flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
+              <Shield className="w-6 h-6 text-primary" />
+              Administrative Governance
             </CardTitle>
-            <Button className="bg-amber-500 hover:bg-amber-600 text-black font-bold">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Admin
+            <Button className="bg-primary text-white font-bold h-12 px-6 rounded-xl shadow-lg">
+              <Plus className="w-5 h-5 mr-2" />
+              New Admin
             </Button>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="p-10 space-y-4">
             {ADMINS.map((admin, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800">
-                <div className="flex items-center gap-4">
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-500 text-white font-bold">
+              <div key={idx} className="flex items-center justify-between p-6 rounded-[1.5rem] bg-muted/5 border border-primary/5 hover:bg-white hover:shadow-xl transition-all cursor-pointer group">
+                <div className="flex items-center gap-5">
+                  <Avatar className="w-14 h-14 border-4 border-white shadow-lg group-hover:rotate-6 transition-transform">
+                    <AvatarFallback className="bg-primary text-white font-bold text-lg">
                       {admin.name.split(" ").map(n => n[0]).join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">{admin.name}</p>
-                    <div className="flex items-center gap-3 text-sm text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Zap className="w-4 h-4" />
-                        {admin.cohorts} cohorts
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Activity className="w-4 h-4" />
-                        {admin.reports} reports
-                      </span>
+                  <div className="space-y-1">
+                    <p className="font-bold text-xl text-foreground">{admin.name}</p>
+                    <div className="flex items-center gap-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                      <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5 text-primary" /> {admin.cohorts} hubs</span>
+                      <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-blue-500" /> {admin.reports} reports</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={admin.status === "active" ? "bg-green-500/20 text-green-500" : "bg-gray-500/20 text-gray-500"}>
+                <div className="flex items-center gap-4">
+                  <Badge className={`px-4 py-1.5 rounded-full font-bold uppercase text-[10px] ${admin.status === "active" ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-500"}`}>
                     {admin.status}
                   </Badge>
-                  <Button variant="ghost" size="sm" className="text-slate-400">Edit</Button>
+                  <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full hover:bg-primary/5"><Plus className="w-5 h-5" /></Button>
                 </div>
               </div>
             ))}
@@ -130,4 +94,18 @@ export default function SuperAdminDashboard() {
       </div>
     </div>
   );
+}
+
+function StatCard({ icon: Icon, title, value, color }: any) {
+    return (
+        <Card className="border-none shadow-premium rounded-[1.8rem] bg-white group hover:translate-y-[-4px] transition-all">
+            <CardContent className="p-8">
+                <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center mb-6 shadow-lg group-hover:rotate-12 transition-transform`}>
+                    <Icon className="w-6 h-6 text-white" />
+                </div>
+                <p className="text-3xl font-bold text-foreground tracking-tighter leading-none mb-2">{value}</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{title}</p>
+            </CardContent>
+        </Card>
+    )
 }

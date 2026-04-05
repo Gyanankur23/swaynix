@@ -1,254 +1,165 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { InterestChooser } from "@/components/interest-chooser";
 import { 
-  Chrome, Mail, ArrowRight, Sparkles, UserPlus,
-  User, Lock, CheckCircle
+  ArrowRight, Sparkles, ShieldCheck, Mail, User, 
+  MapPin, Check, ChevronRight, ArrowLeft, Heart, 
+  Zap, Compass, Target, Star
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { useAuth } from "@/components/auth-context";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth-context";
+
+// Premium Unsplash images for human connectivity
+const HUMAN_MOMENTS = [
+  "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800",
+  "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800",
+  "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=800",
+  "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800",
+  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800",
+];
 
 export default function SignupPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
-  const { login, user } = useAuth();
+  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [interests, setInterests] = useState<string[]>([]);
   const router = useRouter();
+  const { signup } = useAuth();
 
-  const handleGoogleSignup = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const mockUser = {
-        id: "user-new",
-        name: formData.name || "New User",
-        email: formData.email || "user@example.com",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
-        handle: "new_user",
-        level: 1,
-        role: "member" as const,
-      };
-      login(mockUser);
-      setShowWelcome(true);
-      setTimeout(() => router.push("/"), 1500);
-    }, 1000);
+  const handleNext = () => setStep((s) => s + 1);
+  const handleBack = () => setStep((s) => s - 1);
+
+  const handleComplete = async () => {
+    await signup({ email, name, interests, handle: name.toLowerCase().replace(/\s/g, "_") });
+    router.push("/");
   };
-
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
-    }
-    setIsLoading(true);
-    setTimeout(() => {
-      const mockUser = {
-        id: "user-new",
-        name: formData.name,
-        email: formData.email,
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200",
-        handle: formData.name.toLowerCase().replace(/\s+/g, "_"),
-        level: 1,
-        role: "member" as const,
-      };
-      login(mockUser);
-      setShowWelcome(true);
-      setTimeout(() => router.push("/"), 1500);
-    }, 1000);
-  };
-
-  if (showWelcome && user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden ring-4 ring-green-500/30">
-            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-          </div>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500 flex items-center justify-center"
-          >
-            <CheckCircle className="w-8 h-8 text-white" />
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-4xl md:text-5xl font-black text-white mb-4"
-          >
-            Welcome to EngageHub,
-            <br />
-            <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 bg-clip-text text-transparent">
-              {user.name}!
-            </span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-slate-400 text-lg"
-          >
-            Your journey starts now. Redirecting...
-          </motion.p>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-md"
-      >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-            <UserPlus className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold mb-2">Join Swaynix</h1>
-          <p className="text-slate-400">Connect with India's best communities</p>
-        </div>
-
-        <Card className="border-0 shadow-2xl bg-white/5 backdrop-blur-sm border border-white/10">
-          <CardContent className="p-6 space-y-6">
-            {/* Google OAuth Button */}
-            <Button
-              onClick={handleGoogleSignup}
-              disabled={isLoading}
-              variant="outline"
-              className="w-full h-12 bg-white hover:bg-gray-100 text-gray-900 border-0 font-medium"
+    <div className="min-h-screen bg-white font-inter relative overflow-hidden">
+      <div className="relative z-10 max-w-7xl mx-auto px-10 h-full min-h-screen flex items-center justify-center py-20 pb-0 lg:pl-80 font-inter">
+        <AnimatePresence mode="wait">
+          {step === 1 && (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              className="w-full max-w-4xl bg-white rounded-[4rem] p-16 shadow-premium border-2 border-primary/5 space-y-12"
             >
-              <Chrome className="w-5 h-5 mr-3 text-red-500" />
-              {isLoading ? "Creating account..." : "Continue with Google"}
-            </Button>
-
-            <div className="relative">
-              <Separator className="bg-white/10" />
-              <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-slate-900 px-4 text-xs text-slate-500">
-                Or sign up with email
-              </span>
-            </div>
-
-            {/* Signup Form */}
-            <form onSubmit={handleSignup} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-white flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Full Name
-                </Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  required
-                  className="h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-purple-500"
-                />
+              <div className="text-center space-y-6 relative z-10">
+                <div className="inline-flex items-center gap-4 px-8 py-3 bg-primary/5 rounded-full border border-primary/10 text-primary font-bold text-xs uppercase tracking-[0.3em] shadow-sm mb-4">
+                  <Star className="w-5 h-5 fill-current" />
+                  Create Your Account
+                </div>
+                <h1 className="text-7xl lg:text-9xl font-bold text-foreground tracking-tighter leading-none">Join <br />Swaynix.</h1>
+                <p className="text-2xl font-medium text-muted-foreground/60 leading-relaxed max-w-2xl mx-auto">Enter your details to get started on your discovery journey across Swaynix.</p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-white flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  required
-                  className="h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-purple-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  required
-                  minLength={8}
-                  className="h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-purple-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-white flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Confirm Password
-                </Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                  required
-                  className="h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-purple-500"
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold"
-              >
-                {isLoading ? (
-                  <Sparkles className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <UserPlus className="w-5 h-5 mr-2" />
-                    Create Account
-                  </>
-                )}
-              </Button>
-            </form>
 
-            <div className="text-center">
-              <p className="text-sm text-slate-500">
-                Already have an account?{" "}
-                <Link href="/login" className="text-purple-400 hover:text-purple-300 font-medium">
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="max-w-xl mx-auto space-y-8 relative z-10">
+                <div className="group transition-all">
+                   <div className="flex items-center gap-4 mb-4 ml-4">
+                      <User className="w-6 h-6 text-primary" />
+                      <span className="text-[10px] font-bold uppercase text-primary tracking-[0.2em]">FULL NAME</span>
+                   </div>
+                   <Input 
+                    placeholder="Your Name (e.g. Gyanankur)" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="h-24 px-10 bg-white border-2 border-primary/5 shadow-xl rounded-[2rem] text-3xl font-bold placeholder:text-muted-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-foreground"
+                  />
+                </div>
+                
+                <div className="group transition-all">
+                   <div className="flex items-center gap-4 mb-4 ml-4">
+                      <Mail className="w-6 h-6 text-primary" />
+                      <span className="text-[10px] font-bold uppercase text-primary tracking-[0.2em]">EMAIL ADDRESS</span>
+                   </div>
+                   <Input 
+                    type="email" 
+                    placeholder="your@email.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-24 px-10 bg-white border-2 border-primary/5 shadow-xl rounded-[2rem] text-3xl font-bold placeholder:text-muted-foreground/10 focus-visible:ring-2 focus-visible:ring-primary/20 transition-all text-foreground"
+                  />
+                </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs text-slate-500 mt-8">
-          By signing up, you agree to our Terms of Service and Privacy Policy
-        </p>
-      </motion.div>
+                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                   <Button 
+                    onClick={handleNext}
+                    className="w-full h-24 bg-primary text-white border-none rounded-[2.5rem] font-bold text-3xl tracking-tighter shadow-2xl hover:translate-y-[-4px] transition-all group overflow-hidden relative mt-4"
+                   >
+                    <span className="relative z-10 flex items-center justify-center gap-6 px-10">
+                       CONTINUE
+                       <ChevronRight className="w-10 h-10 group-hover:translate-x-4 transition-transform" />
+                    </span>
+                   </Button>
+                </motion.div>
+                
+                <p className="text-center text-muted-foreground font-bold text-[10px] uppercase tracking-widest opacity-30 mt-8">By signing up, you accept our Terms of Service.</p>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, scale: 0.95, x: 100 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 1.05, x: -100 }}
+              className="w-full max-w-6xl space-y-12"
+            >
+              <div className="flex items-center justify-between mb-12">
+                 <Button variant="ghost" onClick={handleBack} className="h-16 px-8 rounded-full text-muted-foreground hover:bg-primary/5 hover:text-primary transition-all font-bold text-lg tracking-tighter">
+                   <ArrowLeft className="w-8 h-8 mr-4" />
+                   Back
+                 </Button>
+                 <div className="flex gap-3">
+                    {[1, 2].map(i => (
+                      <div key={i} className={`w-12 h-2 rounded-full transition-all ${i === 2 ? "bg-primary shadow-lg shadow-primary/20" : "bg-primary/10"}`} />
+                    ))}
+                 </div>
+              </div>
+              
+              <div className="space-y-4 mb-20 text-center lg:text-left">
+                <div className="inline-flex items-center gap-4 px-8 py-3 bg-primary/5 rounded-full border border-primary/10 text-primary font-bold text-xs uppercase tracking-[0.3em] shadow-sm mb-4">
+                  <Compass className="w-5 h-5" />
+                  Step 2
+                </div>
+                <h2 className="text-7xl lg:text-9xl font-bold text-foreground tracking-tighter leading-none">Your Interests.</h2>
+                <p className="text-2xl font-medium text-muted-foreground/60 max-w-2xl">Choose what you love and we'll connect you with the right communities.</p>
+              </div>
+
+              <InterestChooser 
+                selected={interests} 
+                onToggle={(interest) => {
+                  setInterests(prev => 
+                    prev.includes(interest) 
+                      ? prev.filter(i => i !== interest)
+                      : [...prev, interest]
+                  );
+                }} 
+              />
+              
+              <div className="flex justify-end pt-12">
+                 <motion.button 
+                    whileHover={{ scale: 1.05 }} 
+                    whileTap={{ scale: 0.95 }} 
+                    onClick={handleComplete}
+                    className="h-24 px-20 bg-primary text-white flex items-center gap-6 rounded-[2.5rem] shadow-premium border-none group"
+                 >
+                    <span className="font-bold text-3xl tracking-tighter">COMPLETE SIGNUP</span>
+                    <Sparkles className="w-10 h-10 transition-transform group-hover:rotate-45" />
+                 </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

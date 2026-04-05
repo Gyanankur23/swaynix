@@ -47,15 +47,7 @@ export default function CreatePostPage() {
 
     const community = COMMUNITIES.find(c => c.id === selectedCommunity);
 
-    addPost({
-      userId: user?.id || "anonymous",
-      author: user?.name || "Anonymous",
-      authorHandle: user?.handle || "anonymous",
-      authorAvatar: user?.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
-      community: community?.name || selectedCommunity,
-      content: content.trim(),
-      image: imageUrl.trim() || null,
-    });
+    addPost(content.trim(), imageUrl.trim() || undefined);
 
     setIsSubmitting(false);
     setShowSuccess(true);
@@ -67,7 +59,7 @@ export default function CreatePostPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-background pt-24 pb-20 px-4 flex items-center justify-center">
+      <div className="min-h-screen bg-white pt-24 pb-20 px-4 flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-bold text-foreground mb-2">Login Required</h2>
@@ -83,7 +75,7 @@ export default function CreatePostPage() {
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-background pt-24 pb-20 px-4 flex items-center justify-center">
+      <div className="min-h-screen bg-white pt-24 pb-20 px-4 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -100,7 +92,7 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-20 px-4">
+    <div className="min-h-screen bg-white pt-24 pb-20 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">

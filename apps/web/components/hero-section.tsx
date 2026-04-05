@@ -4,224 +4,138 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
-  Sparkles, Zap, Heart, Users, ArrowRight, 
-  MessageCircle, Share2, TrendingUp, Target,
-  Compass, Flame, Star
+  Users, 
+  MessageCircle, 
+  Compass
 } from "lucide-react";
 import Link from "next/link";
 import { AnimatedCounter } from "./animated-counter";
-import { ParticleBackground } from "./particle-background";
-import { FloatingImage } from "./image-gallery";
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: mounted ? containerRef : undefined,
     offset: ["start start", "end start"]
   });
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const stats = [
-    { icon: Users, value: 1000, suffix: "+", label: "Active Members" },
-    { icon: Compass, value: 50, suffix: "+", label: "Cohorts" },
-    { icon: MessageCircle, value: 10, suffix: "K+", label: "Conversations" },
+    { icon: Users, value: 50, suffix: "K+", label: "Users" },
+    { icon: Compass, value: 22, suffix: "", label: "Categories" },
+    { icon: MessageCircle, value: 10, suffix: "M+", label: "Messages" },
   ];
 
-  const animationProps = mounted ? {} : { initial: false, animate: false };
+  if (!mounted) return <div className="min-h-screen bg-white" />;
 
   return (
-    <div ref={containerRef} className="relative min-h-screen overflow-hidden bg-background">
-      <ParticleBackground />
+    <div ref={containerRef} className="relative min-h-screen overflow-hidden bg-white font-inter">
+      {/* Full-bleed group photo — same framing as original; light scrim only (no dark overlay) */}
+      <motion.div 
+        style={{ scale, opacity, y }}
+        className="absolute inset-0 z-0"
+      >
+        <img 
+          src="/hero-main.png" 
+          alt="Community connection at Swaynix" 
+          className="w-full h-full object-cover"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-white/25 via-white/10 to-white/95 pointer-events-none"
+          aria-hidden
+        />
+      </motion.div>
       
-      {/* Light mode creamy peach gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-100/80 via-amber-50/60 to-orange-50/80 dark:from-transparent dark:via-transparent dark:to-transparent pointer-events-none" />
-      
-      {/* Floating Background Images */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <FloatingImage 
-          query="technology" 
-          size={180}
-          position={{ top: "10%", left: "5%" }}
-          delay={0.3}
-          className="opacity-40"
-        />
-        <FloatingImage 
-          query="community" 
-          size={220}
-          position={{ top: "60%", left: "8%" }}
-          delay={0.5}
-          className="opacity-30"
-        />
-        <FloatingImage 
-          query="abstract" 
-          size={160}
-          position={{ top: "20%", right: "8%" }}
-          delay={0.7}
-          className="opacity-40"
-        />
-        <FloatingImage 
-          query="network" 
-          size={200}
-          position={{ bottom: "15%", right: "5%" }}
-          delay={0.9}
-          className="opacity-30"
-        />
-        <FloatingImage 
-          query="city" 
-          size={140}
-          position={{ top: "45%", right: "15%" }}
-          delay={1.1}
-          className="opacity-20"
-        />
-      </div>
-      
-      <motion.div style={{ y, opacity }} className="relative z-10 container mx-auto px-4 py-20">
-        {/* Badge */}
-        <motion.div
-          initial={mounted ? { opacity: 0, y: 20 } : false}
-          animate={mounted ? { opacity: 1, y: 0 } : false}
-          transition={{ delay: 0.2 }}
-          className="flex justify-center mb-8"
+      <div className="relative z-10 container mx-auto px-6 py-24 flex flex-col items-center min-h-screen justify-center">
+        <div className="absolute top-10 right-10 flex gap-4">
+           <Link href="/login">
+              <Button variant="outline" className="bg-white/90 backdrop-blur-md border-primary/15 text-foreground font-bold px-6 py-3 rounded-xl shadow-sm hover:bg-white">
+                User Login
+              </Button>
+           </Link>
+           <Link href="/login?role=business">
+              <Button variant="outline" className="bg-white/90 backdrop-blur-md border-primary/15 text-foreground font-bold px-6 py-3 rounded-xl shadow-sm hover:bg-white">
+                Business Login
+              </Button>
+           </Link>
+           <Link href="/signup">
+              <Button className="bg-primary text-primary-foreground font-bold px-8 py-3 rounded-xl shadow-lg border-none hover:bg-primary/90">
+                Sign Up
+              </Button>
+           </Link>
+        </div>
+
+        <motion.div 
+           initial={{ opacity: 0, y: 50 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.2 }}
+           className="text-center space-y-6 max-w-5xl"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass shadow-sm">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-foreground">Anti-FOMO Community Platform</span>
-          </div>
+           <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight leading-tight text-foreground drop-shadow-[0_2px_24px_rgba(255,255,255,0.9)]">
+              Welcome to <span className="italic text-primary">Swaynix</span>
+           </h1>
+           <p className="text-2xl md:text-4xl font-medium text-foreground/90 drop-shadow-[0_1px_16px_rgba(255,255,255,0.85)] leading-snug">
+              Connect with real people across your favorite interests.
+           </p>
         </motion.div>
 
-        {/* Main Headline - SWAYNIX */}
-        <h1
-          className="text-7xl md:text-9xl lg:text-[10rem] font-black text-center mb-6 text-orange-600 dark:text-amber-400 leading-none tracking-tight drop-shadow-lg"
-        >
-          Swaynix
-        </h1>
-
-        {/* Subtitle */}
         <motion.p
-          initial={mounted ? { opacity: 0, y: 20 } : false}
-          animate={mounted ? { opacity: 1, y: 0 } : false}
-          transition={{ delay: 0.3 }}
-          className="text-3xl md:text-5xl lg:text-6xl font-bold text-center mb-8 text-foreground"
-        >
-          India&apos;s Community Hub
-        </motion.p>
-
-        {/* Subheadline */}
-        <motion.p
-          initial={mounted ? { opacity: 0, y: 20 } : false}
-          animate={mounted ? { opacity: 1, y: 0 } : false}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-2xl md:text-3xl lg:text-4xl text-center text-muted-foreground max-w-4xl mx-auto mb-16 leading-relaxed font-medium"
+          className="text-lg md:text-xl text-center text-foreground/85 max-w-3xl mx-auto mt-8 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(255,255,255,0.8)]"
         >
-          Connect with 50,000+ Indians who share your passion for travel, tech, food & more.
-          <span className="text-primary"> No followers. Just real connections.</span>
+          Discover communities that match your lifestyle. Whether it&apos;s sports, coding, or cooking, find your tribe on Swaynix.
         </motion.p>
 
-        {/* CTA Buttons */}
         <motion.div
-          initial={mounted ? { opacity: 0, y: 20 } : false}
-          animate={mounted ? { opacity: 1, y: 0 } : false}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center mb-20"
+          className="flex flex-col sm:flex-row gap-6 justify-center mt-12"
         >
           <Link href="/explore">
-            <Button size="lg" className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 text-lg rounded-full group shadow-lg shadow-orange-500/20">
-              Start Exploring
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <Button className="h-16 px-12 bg-primary text-primary-foreground rounded-2xl font-bold text-xl shadow-xl hover:translate-y-[-2px] transition-all">
+               Explore Communities
             </Button>
           </Link>
-          <Link href="/how-it-works">
-            <Button size="lg" variant="outline" className="border-primary/50 text-foreground hover:bg-primary/10 px-8 py-6 text-lg rounded-full">
-              How It Works
+          <Link href="/signup">
+            <Button variant="outline" className="h-16 px-12 bg-white/95 backdrop-blur-md border-2 border-primary/20 rounded-2xl text-foreground font-bold text-lg hover:bg-white transition-all shadow-md">
+               Join Now
             </Button>
           </Link>
         </motion.div>
 
-        {/* Stats */}
         <motion.div
-          initial={mounted ? { opacity: 0, y: 40 } : false}
-          animate={mounted ? { opacity: 1, y: 0 } : false}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.8 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 w-full max-w-4xl"
         >
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={mounted ? { opacity: 0, scale: 0.9 } : false}
-              animate={mounted ? { opacity: 1, scale: 1 } : false}
-              transition={{ delay: 1 + index * 0.1 }}
-              className="text-center p-6 rounded-2xl glass"
-            >
-              <stat.icon className="w-10 h-10 mx-auto mb-4 text-primary" />
-              <div className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground mb-2">
-                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-              </div>
-              <p className="text-muted-foreground text-lg md:text-xl">{stat.label}</p>
-            </motion.div>
+          {stats.map((stat) => (
+            <div key={stat.label} className="p-8 bg-white rounded-[2.5rem] border border-primary/10 shadow-premium text-center">
+               <stat.icon className="w-10 h-10 mx-auto mb-4 text-primary/80" />
+               <div className="text-4xl font-bold text-foreground mb-2">
+                 <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+               </div>
+               <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest">{stat.label}</p>
+            </div>
           ))}
         </motion.div>
+      </div>
 
-        {/* Floating Cards */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <FloatingCard 
-            icon={Heart} 
-            text="No follower counts" 
-            className="top-20 left-10" 
-            delay={1.2}
-            mounted={mounted}
-          />
-          <FloatingCard 
-            icon={Target} 
-            text="Interest-based matching" 
-            className="top-40 right-10" 
-            delay={1.4}
-            mounted={mounted}
-          />
-          <FloatingCard 
-            icon={Zap} 
-            text="Sub-ms discovery" 
-            className="bottom-40 left-20" 
-            delay={1.6}
-            mounted={mounted}
-          />
-        </div>
-      </motion.div>
-
-      {/* Gradient Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background/80 to-transparent" />
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-50 flex flex-col items-center z-10">
+         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-2">Scroll to see more</p>
+         <div className="w-px h-12 bg-primary/40 animate-pulse" />
+      </div>
     </div>
-  );
-}
-
-function FloatingCard({ icon: Icon, text, className, delay, mounted }: { 
-  icon: any; 
-  text: string; 
-  className: string; 
-  delay: number;
-  mounted: boolean;
-}) {
-  return (
-    <motion.div
-      initial={mounted ? { opacity: 0, scale: 0 } : false}
-      animate={mounted ? { opacity: 1, scale: 1 } : false}
-      transition={{ delay, duration: 0.5 }}
-      className={`absolute ${className}`}
-    >
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="flex items-center gap-2 px-4 py-2 rounded-full glass shadow-sm"
-      >
-        <Icon className="w-4 h-4 text-primary" />
-        <span className="text-sm text-foreground">{text}</span>
-      </motion.div>
-    </motion.div>
   );
 }

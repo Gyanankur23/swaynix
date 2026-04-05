@@ -78,7 +78,7 @@ export default function CreateAdPage() {
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-24 lg:pb-8 lg:pl-72 flex items-center justify-center">
+      <div className="min-h-screen bg-white pt-20 pb-24 lg:pb-8 lg:pl-72 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -95,7 +95,7 @@ export default function CreateAdPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-24 lg:pb-8 lg:pl-72">
+    <div className="min-h-screen bg-white pt-20 pb-24 lg:pb-8 lg:pl-72">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">

@@ -21,7 +21,6 @@ const NAV_ITEMS = [
   { id: "settings", label: "Settings", href: "/settings", icon: Settings },
 ];
 
-// Circular progress component for engagement score
 function EngagementRing({ 
   score, 
   maxScore = 100,
@@ -45,36 +44,30 @@ function EngagementRing({
         height={size}
         className="transform -rotate-90"
       >
-        {/* Background ring */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.1)"
+          stroke="rgba(0,0,0,0.05)"
           strokeWidth={strokeWidth}
         />
-        {/* Progress ring - Neon Green */}
         <motion.circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#00FF85"
+          stroke="hsl(var(--primary))"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset }}
           transition={{ duration: 1, ease: "easeOut" }}
-          style={{
-            filter: "drop-shadow(0 0 6px rgba(0,255,133,0.6))",
-          }}
         />
       </svg>
-      {/* Score display */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-white font-bold text-xs">{Math.round(progress * 100)}%</span>
+        <span className="text-foreground font-bold text-[8px]">{Math.round(progress * 100)}%</span>
       </div>
     </div>
   );
@@ -85,9 +78,8 @@ export function MobileNav({ engagementScore = 45, nextLevelScore = 100 }: Mobile
 
   return (
     <>
-      {/* Mobile Bottom Tab Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-black border-t border-gray-800">
-        <div className="flex items-center justify-around px-2 py-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-primary/10 pb-safe">
+        <div className="flex items-center justify-around px-2 h-16">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
@@ -100,40 +92,26 @@ export function MobileNav({ engagementScore = 45, nextLevelScore = 100 }: Mobile
                   className={`
                     flex flex-col items-center gap-1 px-4 py-2 rounded-xl
                     transition-colors duration-200
-                    ${isActive && !isPost ? "text-[#00FF85]" : "text-gray-500"}
-                    ${isPost ? "" : "hover:text-gray-300"}
+                    ${isActive && !isPost ? "text-primary" : "text-muted-foreground"}
+                    ${isPost ? "" : "hover:text-primary"}
                   `}
                 >
                   {isPost ? (
-                    // Special styling for Post button
                     <motion.div
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-14 h-14 rounded-full bg-[#00FF85] flex items-center justify-center shadow-[0_0_20px_rgba(0,255,133,0.4)]"
+                      className="w-12 h-12 rounded-2xl bg-swaynix-gradient border border-black/5 flex items-center justify-center shadow-lg -mt-8"
                     >
-                      <PlusCircle className="w-7 h-7 text-black" />
+                      <PlusCircle className="w-6 h-6 text-foreground" />
                     </motion.div>
                   ) : item.id === "score" ? (
-                    // Engagement score ring
                     <div className="relative">
                       <EngagementRing score={engagementScore} maxScore={nextLevelScore} />
-                      {isActive && (
-                        <motion.div
-                          layoutId="nav-indicator"
-                          className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#00FF85]"
-                        />
-                      )}
                     </div>
                   ) : (
                     <>
                       <Icon className={`w-6 h-6 ${isActive ? "stroke-[2.5px]" : ""}`} />
-                      <span className="text-[10px] font-medium">{item.label}</span>
-                      {isActive && item.id !== "score" && (
-                        <motion.div
-                          layoutId="nav-indicator"
-                          className="absolute -bottom-1 w-1 h-1 rounded-full bg-[#00FF85]"
-                        />
-                      )}
+                      <span className="text-[9px] font-black italic uppercase tracking-widest">{item.label}</span>
                     </>
                   )}
                 </motion.button>
@@ -141,35 +119,27 @@ export function MobileNav({ engagementScore = 45, nextLevelScore = 100 }: Mobile
             );
           })}
         </div>
-        
-        {/* Safe area padding for mobile */}
-        <div className="h-safe-area-inset-bottom bg-black" />
       </nav>
-
-      {/* Engagement Score Popup (appears when score increases) */}
       <EngagementPopup />
     </>
   );
 }
 
-// Popup notification for engagement score increases
 function EngagementPopup() {
-  // This would be triggered by a global state or context
-  // For now, it's a static component ready for integration
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50, scale: 0.9 }}
-      animate={{ opacity: 0, y: 50, scale: 0.9 }}
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 0, y: 50 }}
       className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
     >
-      <div className="bg-gray-900 border border-[#00FF85]/50 rounded-2xl px-6 py-4 shadow-[0_0_30px_rgba(0,255,133,0.3)]">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#00FF85]/20 flex items-center justify-center">
-            <Trophy className="w-5 h-5 text-[#00FF85]" />
+      <div className="bg-white/90 backdrop-blur-md border border-primary/20 rounded-[2rem] px-8 py-4 shadow-premium">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+            <Trophy className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <p className="text-white font-bold">+5 Engagement Score!</p>
-            <p className="text-gray-400 text-sm">Keep contributing to level up</p>
+            <p className="text-foreground font-black italic">+5 Signal Intensity!</p>
+            <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">Global Level Rising</p>
           </div>
         </div>
       </div>
@@ -177,29 +147,26 @@ function EngagementPopup() {
   );
 }
 
-// Desktop Navigation (horizontal top nav)
 export function DesktopNav({ engagementScore = 45, nextLevelScore = 100 }: MobileNavProps) {
   const pathname = usePathname();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800">
-      <div className="max-w-7xl mx-auto px-4">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-primary/10">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#00FF85] flex items-center justify-center">
-              <span className="text-black font-bold text-sm">EH</span>
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-swaynix-gradient border border-black/5 flex items-center justify-center shadow-md">
+              <span className="text-foreground font-black italic text-lg">S</span>
             </div>
-            <span className="font-black text-lg bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Swaynix</span>
+            <span className="font-black italic text-2xl tracking-tighter text-foreground">Swaynix</span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-2">
             {[
-              { href: "/", label: "Feed", icon: Home },
-              { href: "/explore", label: "Explore", icon: Search },
-              { href: "/notifications", label: "Notifications", icon: Bell },
-              { href: "/profile", label: "Profile", icon: User },
+              { href: "/", label: "Hub Feed", icon: Home },
+              { href: "/explore", label: "Discovery", icon: Search },
+              { href: "/notifications", label: "Radar", icon: Bell },
+              { href: "/profile", label: "Identity", icon: User },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -209,36 +176,33 @@ export function DesktopNav({ engagementScore = 45, nextLevelScore = 100 }: Mobil
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className={`
-                      flex items-center gap-2 px-4 py-2 rounded-lg
-                      transition-colors duration-200
-                      ${isActive ? "bg-gray-800 text-[#00FF85]" : "text-gray-400 hover:text-white hover:bg-gray-800/50"}
+                      flex items-center gap-2 px-6 py-3 rounded-xl font-black italic
+                      transition-all duration-200
+                      ${isActive ? "bg-swaynix-gradient text-foreground border border-black/5 shadow-md" : "text-muted-foreground hover:bg-primary/5 hover:text-primary"}
                     `}
                   >
                     <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <span className="text-sm">{item.label}</span>
                   </motion.button>
                 </Link>
               );
             })}
           </nav>
 
-          {/* Right side: Score + Post button */}
           <div className="flex items-center gap-4">
-            {/* Engagement Score */}
-            <div className="flex items-center gap-3 bg-gray-900 rounded-full pl-4 pr-2 py-1.5 border border-gray-800">
+            <div className="flex items-center gap-4 bg-primary/5 rounded-full pl-6 pr-2 py-2 border border-primary/10">
               <div className="flex flex-col items-end">
-                <span className="text-[10px] text-gray-500 uppercase tracking-wider">Score</span>
-                <span className="text-white font-bold text-sm leading-none">{engagementScore}</span>
+                <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">Signal</span>
+                <span className="text-foreground font-black italic text-sm leading-none">{engagementScore}</span>
               </div>
-              <EngagementRing score={engagementScore} maxScore={nextLevelScore} size={36} strokeWidth={3} />
+              <EngagementRing score={engagementScore} maxScore={nextLevelScore} size={32} strokeWidth={3} />
             </div>
 
-            {/* Post Button */}
             <Link href="/post">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 bg-[#00FF85] text-black px-4 py-2 rounded-full font-bold hover:bg-[#00FF85]/90 transition-colors"
+                className="flex items-center gap-2 bg-swaynix-gradient text-foreground border border-black/5 px-6 h-11 rounded-xl font-black italic shadow-lg hover:translate-y-[-2px] transition-all"
               >
                 <PlusCircle className="w-5 h-5" />
                 <span className="hidden sm:inline">Post</span>

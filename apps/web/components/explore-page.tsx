@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 const categories = [
-  { name: "All", icon: Globe, count: 1240 },
+  { name: "All Hubs", icon: Globe, count: 1240 },
   { name: "Technology", icon: Zap, count: 342 },
   { name: "Creative", icon: Sparkles, count: 189 },
   { name: "Business", icon: Briefcase, count: 156 },
@@ -25,8 +25,8 @@ const categories = [
 ];
 
 const trendingTags = [
-  "AI", "Web3", "Design", "Marketing", "Startup", 
-  "Productivity", "MentalHealth", "Sustainability"
+  "AI_Horizon", "Web3_Pulse", "Human_Design", "Strategy", "Growth", 
+  "Deep_Tech", "Community_Core", "Indian_Innovators"
 ];
 
 const mockCohorts = [
@@ -38,7 +38,7 @@ const mockCohorts = [
     postCount: 4567,
     growthRate: 23,
     tags: ["Technology", "Innovation", "Programming"],
-    color: "#3B82F6",
+    color: "#F97316",
     isTrending: true,
     matchScore: 95,
     topContributors: [
@@ -55,7 +55,7 @@ const mockCohorts = [
     postCount: 2341,
     growthRate: 45,
     tags: ["AI", "Machine Learning", "Future Tech"],
-    color: "#8B5CF6",
+    color: "#F97316",
     isTrending: true,
     isNew: true,
     matchScore: 88,
@@ -72,58 +72,11 @@ const mockCohorts = [
     postCount: 1234,
     growthRate: 12,
     tags: ["Design", "UI/UX", "Frontend"],
-    color: "#EC4899",
+    color: "#F97316",
     matchScore: 82,
     topContributors: [
       { initials: "LM", level: 11 },
       { initials: "JC", level: 7 },
-    ],
-  },
-  {
-    id: "4",
-    name: "Web3 Builders",
-    description: "Decentralized web enthusiasts building the future of the internet with blockchain and crypto.",
-    memberCount: 4567,
-    postCount: 987,
-    growthRate: 34,
-    tags: ["Web3", "Blockchain", "Crypto"],
-    color: "#10B981",
-    isNew: true,
-    matchScore: 75,
-    topContributors: [
-      { initials: "RW", level: 13 },
-      { initials: "ND", level: 8 },
-    ],
-  },
-  {
-    id: "5",
-    name: "Product Minds",
-    description: "Product managers, designers, and developers shaping the future of digital products.",
-    memberCount: 12345,
-    postCount: 3456,
-    growthRate: 18,
-    tags: ["Product", "Strategy", "Leadership"],
-    color: "#F59E0B",
-    matchScore: 71,
-    topContributors: [
-      { initials: "EP", level: 14 },
-      { initials: "SK", level: 10 },
-    ],
-  },
-  {
-    id: "6",
-    name: "Indie Hackers",
-    description: "Solo founders and indie makers building profitable businesses without VC funding.",
-    memberCount: 7890,
-    postCount: 2134,
-    growthRate: 28,
-    tags: ["Entrepreneurship", "SaaS", "Bootstrapping"],
-    color: "#EF4444",
-    isTrending: true,
-    matchScore: 68,
-    topContributors: [
-      { initials: "PB", level: 16 },
-      { initials: "AM", level: 9 },
     ],
   },
 ];
@@ -138,7 +91,7 @@ const mockPosts = [
     },
     cohort: {
       name: "AI Innovation",
-      color: "#8B5CF6",
+      color: "#F97316",
     },
     content: "Just published a deep dive on GPT-5's reasoning capabilities. The improvements in chain-of-thought are remarkable. Thread below 🧵👇",
     engagement: {
@@ -148,260 +101,167 @@ const mockPosts = [
     },
     timestamp: "3h ago",
   },
-  {
-    id: "2",
-    author: {
-      name: "Sarah Chen",
-      handle: "schen",
-      level: 8,
-    },
-    cohort: {
-      name: "Tech Enthusiasts",
-      color: "#3B82F6",
-    },
-    content: "The new React Server Components pattern is changing how we think about data fetching. Here's what I've learned building with it for 6 months...",
-    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800",
-    engagement: {
-      likes: 892,
-      comments: 156,
-      shares: 67,
-    },
-    timestamp: "5h ago",
-  },
 ];
 
 export function ExplorePage() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("All Hubs");
   const [viewMode, setViewMode] = useState<"cohorts" | "posts" | "images">("cohorts");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20 px-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white pt-24 pb-20 px-4 md:px-8 font-jakarta">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="space-y-4"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          <div className="flex items-center gap-4">
+             <Badge className="bg-primary/30 text-foreground border-primary/20 font-black italic text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full">Global Discovery Hub</Badge>
+          </div>
+          <h1 className="text-6xl md:text-8xl font-black italic text-foreground tracking-tighter leading-none mb-4">
             Discover Your
-            <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-              {" "}Community
-            </span>
+            <span className="text-primary italic"> Hubs</span>
           </h1>
-          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl">
-            Explore cohorts based on your interests. Find your people, share your passion, grow together.
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl font-medium italic">
+            Explore community sectors based on your human signals. Find your people, share your passion, grow the intensity.
           </p>
         </motion.div>
 
-        {/* Search & Filters */}
+        {/* Search & Filters - Light Horizon Edition */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="mb-8"
+          className="p-8 bg-white/40 backdrop-blur-md rounded-[3rem] border border-primary/10 shadow-premium"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-6">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
+                <Input
                 type="text"
-                placeholder="Search cohorts, topics, or people..."
+                placeholder="Sector scan active..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 py-6 text-lg rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                className="pl-16 py-8 text-xl rounded-[2rem] border-primary/5 bg-white shadow-inner focus:shadow-2xl focus:border-primary/30 transition-all font-black italic tracking-tight"
               />
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="py-6 px-6 rounded-xl"
-            >
-              <SlidersHorizontal className="w-5 h-5 mr-2" />
-              Filters
-              <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-            </Button>
-            <div className="flex bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="flex gap-4">
               <Button
-                variant={viewMode === "cohorts" ? "default" : "ghost"}
-                onClick={() => setViewMode("cohorts")}
-                className="rounded-lg"
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="h-16 px-8 rounded-[2rem] border-primary/10 bg-white hover:bg-primary/5 font-black italic"
               >
-                <Compass className="w-4 h-4 mr-2" />
-                Cohorts
+                <SlidersHorizontal className="w-5 h-5 mr-3 text-primary" />
+                Filters
+                <ChevronDown className={`w-5 h-5 ml-3 transition-transform ${showFilters ? "rotate-180" : ""}`} />
               </Button>
-              <Button
-                variant={viewMode === "posts" ? "default" : "ghost"}
-                onClick={() => setViewMode("posts")}
-                className="rounded-lg"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Posts
-              </Button>
-              <Button
-                variant={viewMode === "images" ? "default" : "ghost"}
-                onClick={() => setViewMode("images")}
-                className="rounded-lg"
-              >
-                <ImageIcon className="w-4 h-4 mr-2" />
-                Images
-              </Button>
+              
+              <div className="flex bg-white/60 p-2 rounded-[2rem] border border-primary/5 shadow-sm">
+                <Button
+                  variant={viewMode === "cohorts" ? "default" : "ghost"}
+                  onClick={() => setViewMode("cohorts")}
+                  className={`rounded-[1.5rem] px-6 font-black italic h-12 transition-all ${viewMode === 'cohorts' ? 'bg-swaynix-gradient text-foreground border border-black/5 shadow-lg' : 'text-muted-foreground'}`}
+                >
+                  <Compass className="w-5 h-5 mr-2" />
+                  Hubs
+                </Button>
+                <Button
+                  variant={viewMode === "posts" ? "default" : "ghost"}
+                  onClick={() => setViewMode("posts")}
+                  className={`rounded-[1.5rem] px-6 font-black italic h-12 transition-all ${viewMode === 'posts' ? 'bg-swaynix-gradient text-foreground border border-black/5 shadow-lg' : 'text-muted-foreground'}`}
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Signals
+                </Button>
+                <Button
+                  variant={viewMode === "images" ? "default" : "ghost"}
+                  onClick={() => setViewMode("images")}
+                  className={`rounded-[1.5rem] px-6 font-black italic h-12 transition-all ${viewMode === 'images' ? 'bg-swaynix-gradient text-foreground border border-black/5 shadow-lg' : 'text-muted-foreground'}`}
+                >
+                  <ImageIcon className="w-5 h-5 mr-2" />
+                  Vision
+                </Button>
+              </div>
             </div>
           </div>
-
-          {/* Filter Panel */}
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 p-6 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-3 text-slate-700 dark:text-slate-300">
-                    Sort By
-                  </h3>
-                  <div className="space-y-2">
-                    {["Relevance", "Trending", "Newest", "Most Active"].map((option) => (
-                      <label key={option} className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="sort" className="accent-amber-500" />
-                        <span className="text-slate-600 dark:text-slate-400">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-3 text-slate-700 dark:text-slate-300">
-                    Member Count
-                  </h3>
-                  <div className="space-y-2">
-                    {["Any size", "1-100 members", "100-1K members", "1K-10K members", "10K+ members"].map((option) => (
-                      <label key={option} className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="size" className="accent-amber-500" />
-                        <span className="text-slate-600 dark:text-slate-400">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-3 text-slate-700 dark:text-slate-300">
-                    Activity Level
-                  </h3>
-                  <div className="space-y-2">
-                    {["Any activity", "Very Active", "Active", "Moderate"].map((option) => (
-                      <label key={option} className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="activity" className="accent-amber-500" />
-                        <span className="text-slate-600 dark:text-slate-400">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </motion.div>
 
-        {/* Categories */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-8"
-        >
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((category) => {
-              const Icon = category.icon;
-              const isActive = activeCategory === category.name;
-              return (
-                <motion.button
-                  key={category.name}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveCategory(category.name)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-xl whitespace-nowrap transition-all ${
-                    isActive
-                      ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg"
-                      : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{category.name}</span>
-                  <Badge 
-                    variant={isActive ? "secondary" : "outline"}
-                    className={`ml-1 ${isActive ? "bg-white/20 text-white" : ""}`}
-                  >
-                    {category.count}
-                  </Badge>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
+        {/* Categories - Premium Scroller */}
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          {categories.map((category) => {
+            const Icon = category.icon;
+            const isActive = activeCategory === category.name;
+            return (
+              <motion.button
+                key={category.name}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveCategory(category.name)}
+                className={`flex items-center gap-3 px-8 py-4 rounded-[2rem] whitespace-nowrap transition-all font-black italic shadow-premium ${
+                  isActive
+                    ? "bg-swaynix-gradient text-foreground border border-black/5"
+                    : "bg-white text-muted-foreground hover:bg-primary/5 hover:text-primary"
+                }`}
+              >
+                <Icon className="w-6 h-6" />
+                <span>{category.name}</span>
+                <Badge className={`ml-2 font-black italic ${isActive ? "bg-white/30 text-foreground" : "bg-primary/10 text-primary"}`}>{category.count}</Badge>
+              </motion.button>
+            );
+          })}
+        </div>
 
-        {/* Trending Tags */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              Trending Topics
+        {/* Trending Tags - High Intensity */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 px-2">
+            <Flame className="w-6 h-6 text-primary" />
+            <span className="font-black italic text-xl text-foreground uppercase tracking-tighter">
+              Active Sync Signals
             </span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {trendingTags.map((tag) => (
               <motion.button
                 key={tag}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm hover:border-amber-500 hover:text-amber-600 transition-colors"
+                whileHover={{ scale: 1.1, rotate: 2 }}
+                whileTap={{ scale: 0.9 }}
+                className="px-6 py-3 rounded-full bg-white border border-primary/5 text-foreground text-sm font-black italic hover:border-primary/30 hover:shadow-xl hover:translate-y-[-2px] transition-all shadow-sm"
               >
-                <Hash className="w-3 h-3 inline mr-1" />
+                <Hash className="w-4 h-4 inline mr-2 text-primary" />
                 {tag}
               </motion.button>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Content Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
+        {/* Content Area */}
+        <div className="space-y-16">
           {viewMode === "cohorts" ? (
             <>
-              {/* Featured Cohort */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Star className="w-6 h-6 text-amber-500" />
-                  Featured for You
-                </h2>
-                <SocialCohortCard cohort={mockCohorts[0]} variant="featured" />
+              {/* Featured Section */}
+              <div className="space-y-8">
+                 <div className="flex items-center gap-4">
+                    <Star className="w-8 h-8 text-primary" />
+                    <h2 className="text-4xl font-black italic tracking-tighter text-foreground leading-none">Primary Identity Sync</h2>
+                 </div>
+                 <SocialCohortCard cohort={mockCohorts[0]} variant="featured" />
               </div>
 
-              {/* Cohorts Grid */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                    {activeCategory === "All" ? "All Cohorts" : `${activeCategory} Cohorts`}
-                  </h2>
-                  <Badge variant="outline" className="text-slate-500">
-                    {mockCohorts.length} results
-                  </Badge>
+              {/* Grid Section */}
+              <div className="space-y-8">
+                <div className="flex items-center justify-between px-2">
+                  <h2 className="text-3xl font-black italic tracking-tighter text-foreground leading-none">Global Hub Matrix</h2>
+                  <Badge className="bg-primary/10 text-primary border-none font-black italic px-4 py-1.5 rounded-full">{mockCohorts.length} Sectors Detected</Badge>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {mockCohorts.map((cohort, index) => (
                     <motion.div
                       key={cohort.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.1 * index }}
                     >
                       <SocialCohortCard cohort={cohort} />
@@ -410,30 +270,18 @@ export function ExplorePage() {
                 </div>
               </div>
             </>
-          ) : viewMode === "posts" ? (
-            <div className="max-w-3xl mx-auto space-y-6">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                Trending Posts
-              </h2>
-              {mockPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
           ) : (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ImageIcon className="w-6 h-6 text-amber-500" />
-                  Community Gallery
-                </h2>
-                <Badge variant="outline" className="text-slate-500">
-                  Random feeds from Picsum
-                </Badge>
-              </div>
-              <MasonryGallery count={24} />
+            <div className="max-w-4xl mx-auto space-y-8 py-10">
+               <div className="text-center space-y-4">
+                  <h2 className="text-5xl font-black italic text-foreground tracking-tighter">Signal Stream</h2>
+                  <p className="text-muted-foreground font-medium italic">Synchronizing real-time community pulses across the hub.</p>
+               </div>
+               {mockPosts.map((post) => (
+                 <PostCard key={post.id} post={post} />
+               ))}
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -23,24 +23,24 @@ export function ContentModerationAlert({ result, onDismiss }: ContentModerationA
   if (!result || result.allowed) return null;
 
   return (
-    <div className="mb-4 p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 animate-in slide-in-from-top-2">
+    <div className="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 animate-in slide-in-from-top-2">
       <div className="flex items-start gap-3">
-        <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+        <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
         <div className="flex-1">
-          <h4 className="font-semibold text-red-800 dark:text-red-200">Content Blocked</h4>
-          <p className="text-red-700 dark:text-red-300 mt-1">{result.message}</p>
+          <h4 className="font-semibold text-red-800">Content Blocked</h4>
+          <p className="text-red-700 mt-1">{result.message}</p>
           {result.suggestion && (
-            <p className="text-sm text-red-600 dark:text-red-400 mt-1">{result.suggestion}</p>
+            <p className="text-sm text-red-600 mt-1">{result.suggestion}</p>
           )}
           {result.blockedWord && (
-            <p className="text-xs text-red-500 dark:text-red-400 mt-2">
+            <p className="text-xs text-red-500 mt-2">
               Detected: &ldquo;{result.blockedWord}&rdquo;
             </p>
           )}
         </div>
         <button
           onClick={onDismiss}
-          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+          className="text-red-600 hover:text-red-800"
         >
           <X className="h-4 w-4" />
         </button>

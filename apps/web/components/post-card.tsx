@@ -52,11 +52,9 @@ export function PostCard({ post }: PostCardProps) {
   const [localLiked, setLocalLiked] = useState<boolean | null>(null);
   const [localShared, setLocalShared] = useState<boolean | null>(null);
   
-  // Use local state if set, otherwise check auth context
   const isLiked = localLiked !== null ? localLiked : hasLikedPost(post.id);
   const isShared = localShared !== null ? localShared : hasSharedPost(post.id);
   
-  // Calculate display counts (add 1 if user has liked/shared)
   const displayLikes = post.engagement.likes + (isLiked ? 1 : 0);
   const displayShares = post.engagement.shares + (isShared ? 1 : 0);
 
@@ -74,22 +72,23 @@ export function PostCard({ post }: PostCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.5, type: "spring", damping: 20 }}
+      className="pb-4"
     >
-      <Card className="overflow-hidden border-0 shadow-lg bg-card">
+      <Card className="overflow-hidden border border-primary/10 shadow-premium bg-white rounded-[2.5rem] hover:shadow-2xl transition-all group">
         <CardContent className="p-0">
           {/* Header */}
-          <div className="p-4 flex items-start justify-between">
-            <div className="flex items-center gap-3">
+          <div className="p-6 flex items-start justify-between">
+            <div className="flex items-center gap-4">
               <Link href={`/profile/${post.author.handle}`}>
-                <motion.div whileHover={{ scale: 1.05 }}>
-                  <Avatar className="w-12 h-12 ring-2 ring-offset-2 ring-offset-background ring-amber-500">
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                  <Avatar className="w-14 h-14 border-4 border-white shadow-xl group-hover:rotate-6 transition-transform">
                     {post.author.avatar ? (
-                      <AvatarImage src={post.author.avatar} />
+                      <AvatarImage src={post.author.avatar} className="object-cover" />
                     ) : (
-                      <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold">
+                      <AvatarFallback className="bg-swaynix-gradient text-foreground font-black italic">
                         {post.author.name.split(" ").map(n => n[0]).join("")}
                       </AvatarFallback>
                     )}
@@ -99,107 +98,108 @@ export function PostCard({ post }: PostCardProps) {
               <div>
                 <div className="flex items-center gap-2">
                   <Link href={`/profile/${post.author.handle}`}>
-                    <span className="font-bold text-foreground hover:underline">
+                    <span className="font-black italic text-xl text-foreground hover:text-primary transition-colors tracking-tight">
                       {post.author.name}
                     </span>
                   </Link>
-                  <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs">
+                  <Badge className="bg-primary/30 text-foreground border-primary/20 font-black italic text-[9px] uppercase tracking-widest px-3 py-0.5 rounded-full">
                     Lvl {post.author.level}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none mt-1">
                   <span>@{post.author.handle}</span>
-                  <span>•</span>
+                  <span className="opacity-30">•</span>
                   <span>{post.timestamp}</span>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge 
-                className="text-white border-0"
+                className="text-white border-0 font-black italic text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg"
                 style={{ backgroundColor: post.cohort.color }}
               >
                 {post.cohort.name}
               </Badge>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                <MoreHorizontal className="w-4 h-4" />
+              <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground rounded-xl hover:bg-primary/5 transition-all">
+                <MoreHorizontal className="w-5 h-5" />
               </Button>
             </div>
           </div>
 
           {/* Content */}
-          <div className="px-4 pb-3">
-            <p className="text-foreground text-lg leading-relaxed">
+          <div className="px-6 pb-4">
+            <p className="text-foreground text-xl font-medium italic leading-relaxed tracking-tight group-hover:text-black transition-colors">
               {post.content}
             </p>
           </div>
 
           {/* Image */}
           {post.image && (
-            <div className="relative overflow-hidden">
-              <motion.img
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.4 }}
-                src={post.image}
-                alt="Post content"
-                className="w-full h-64 md:h-96 object-cover"
-              />
+            <div className="px-6 pb-6">
+              <div className="relative overflow-hidden rounded-[2rem] shadow-xl border border-black/5">
+                <motion.img
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.6 }}
+                  src={post.image}
+                  alt="Post content"
+                  className="w-full h-72 md:h-[30rem] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-white/50 to-transparent pointer-events-none" />
+              </div>
             </div>
           )}
 
           {/* Engagement Bar */}
-          <div className="p-4 border-t border-border">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleLike}
-                  disabled={!user}
-                  className={`flex items-center gap-2 transition-colors ${
-                    isLiked 
-                      ? "text-rose-500" 
-                      : "text-muted-foreground hover:text-rose-500"
-                  } ${!user ? "opacity-50 cursor-not-allowed" : ""}`}
-                >
-                  <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-                  <span className="font-medium">{displayLikes.toLocaleString()}</span>
-                </motion.button>
-
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="font-medium">{post.engagement.comments}</span>
-                </motion.button>
-
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleShare}
-                  disabled={!user || isShared}
-                  className={`flex items-center gap-2 transition-colors ${
-                    isShared 
-                      ? "text-green-500" 
-                      : "text-muted-foreground hover:text-green-500"
-                  } ${!user || isShared ? "opacity-50 cursor-not-allowed" : ""}`}
-                >
-                  {isShared ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
-                  <span className="font-medium">{displayShares.toLocaleString()}</span>
-                </motion.button>
-              </div>
+          <div className="px-6 py-4 bg-primary/[0.03] border-t border-primary/5 flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                onClick={handleLike}
+                disabled={!user}
+                className={`flex items-center gap-2 transition-all ${
+                  isLiked 
+                    ? "text-rose-500 scale-110" 
+                    : "text-muted-foreground hover:text-rose-500"
+                } ${!user ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <Heart className={`w-6 h-6 ${isLiked ? "fill-current" : ""}`} />
+                <span className="font-black italic text-lg">{displayLikes.toLocaleString()}</span>
+              </motion.button>
 
               <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsSaved(!isSaved)}
-                className={`transition-colors ${
-                  isSaved 
-                    ? "text-amber-500" 
-                    : "text-muted-foreground hover:text-amber-500"
-                }`}
+                whileTap={{ scale: 0.8 }}
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all"
               >
-                <Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />
+                <MessageCircle className="w-6 h-6" />
+                <span className="font-black italic text-lg">{post.engagement.comments}</span>
+              </motion.button>
+
+              <motion.button
+                whileTap={{ scale: 0.8 }}
+                onClick={handleShare}
+                disabled={!user || isShared}
+                className={`flex items-center gap-2 transition-all ${
+                  isShared 
+                    ? "text-primary scale-110" 
+                    : "text-muted-foreground hover:text-primary"
+                } ${!user || isShared ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                {isShared ? <Check className="w-6 h-6 stroke-[3px]" /> : <Share2 className="w-6 h-6" />}
+                <span className="font-black italic text-lg">{displayShares.toLocaleString()}</span>
               </motion.button>
             </div>
+
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              onClick={() => setIsSaved(!isSaved)}
+              className={`transition-all p-2 rounded-xl hover:bg-white shadow-sm ${
+                isSaved 
+                  ? "text-amber-500 scale-110" 
+                  : "text-muted-foreground hover:text-amber-500"
+              }`}
+            >
+              <Bookmark className={`w-6 h-6 ${isSaved ? "fill-current" : ""}`} />
+            </motion.button>
           </div>
         </CardContent>
       </Card>

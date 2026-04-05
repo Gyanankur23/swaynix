@@ -1,203 +1,274 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useTheme } from "next-themes";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/components/auth-context";
+import { useToast } from "@/components/ui/toast-provider";
 import { 
-  User, Bell, Shield, Moon, Sun, Globe, Smartphone,
-  Mail, Key, ChevronRight, LogOut, Trash2
+  User, Bell, Shield, Globe, Smartphone,
+  Mail, Key, ChevronRight, LogOut, Trash2, Camera,
+  Sparkles, Palette, Fingerprint, Lock, Download,
+  CheckCircle2, AlertCircle, FileJson, Languages,
+  MapPin, Link as LinkIcon, ChevronDown
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme();
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user, login, logout } = useAuth();
+  
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    bio: "",
+    location: "India",
+    website: "swaynix.com"
+  });
 
-  const isDarkMode = theme === "dark";
+  const [language, setLanguage] = useState("English (US)");
+  const [visibility, setVisibility] = useState("Public");
 
-  const handleThemeToggle = () => {
-    setTheme(isDarkMode ? "light" : "dark");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setEditForm({
+        name: user.name || "",
+        bio: user.role === 'business' ? "Official Brand Partner Hub." : "Passionate Swaynix community member.",
+        location: "India",
+        website: user.role === 'business' ? `${user.name.toLowerCase().replace(' ', '')}.in` : "swaynix.com"
+      });
+    }
+  }, [user]);
+
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && user) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newAvatar = reader.result as string;
+        login({ ...user, avatar: newAvatar });
+        toast("Profile picture updated", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveProfile = () => {
+    if (user) {
+      login({ ...user, ...editForm });
+      toast("Profile updated successfully", "success");
+    }
+    setIsEditing(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-6 pt-24 lg:pl-72">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white">Settings</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your account and preferences</p>
-        </motion.div>
+    <div className="min-h-screen bg-white pt-24 pb-20 px-4 md:px-8 lg:pl-80 font-inter">
+      <div className="max-w-4xl mx-auto space-y-12">
+        
+        {/* Simple Header */}
+        <div className="space-y-4">
+          <h1 className="text-5xl font-bold tracking-tight text-foreground">Settings</h1>
+          <p className="text-muted-foreground text-xl font-medium">Manage your account, security, and preferences.</p>
+        </div>
 
-        {/* Profile Section */}
-        <Card className="border-0 shadow-lg bg-white dark:bg-slate-800/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
-              <User className="w-5 h-5 text-purple-500" />
-              Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Avatar className="w-20 h-20">
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-2xl font-bold">
-                  AS
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-900 dark:text-white text-lg">Arjun Sharma</h3>
-                <p className="text-slate-500 dark:text-slate-400">@arjun_sharma</p>
-                <p className="text-sm text-slate-400 mt-1">Mumbai, India</p>
-              </div>
-              <Button variant="outline" className="border-purple-500/30 text-purple-500 hover:bg-purple-500/10">
-                Edit Profile
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 gap-12">
+          
+          <div className="space-y-12">
+            
+            {/* Account Information */}
+            <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+              <CardHeader className="p-10 border-b bg-muted/5">
+                <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                  <User className="w-6 h-6 text-primary" />
+                  Account Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-10 space-y-8">
+                <div className="flex flex-col md:flex-row items-center gap-10">
+                  <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                    <Avatar className="w-32 h-32 md:w-36 md:h-36 border-4 border-white shadow-xl transition-transform group-hover:scale-105">
+                      <AvatarImage src={user?.avatar} className="object-cover" />
+                      <AvatarFallback className="bg-primary text-white text-3xl font-bold">
+                        {user?.name?.[0] || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute bottom-1 right-1 w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg border-2 border-white">
+                      <Camera className="w-5 h-5" />
+                    </div>
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                  </div>
 
-        {/* Appearance */}
-        <Card className="border-0 shadow-lg bg-white dark:bg-slate-800/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
-              <Moon className="w-5 h-5 text-indigo-500" />
-              Appearance
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {isDarkMode ? <Moon className="w-5 h-5 text-slate-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">{isDarkMode ? "Dark Mode" : "Light Mode"}</p>
-                  <p className="text-sm text-slate-500">Switch between light and dark themes</p>
+                  <div className="flex-1 w-full space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label className="text-sm font-bold text-muted-foreground ml-1">Full Name</Label>
+                            <Input 
+                                disabled={!isEditing}
+                                value={editForm.name} 
+                                onChange={e => setEditForm({...editForm, name: e.target.value})} 
+                                className="h-14 rounded-2xl bg-muted/20 border-none px-6 text-lg font-semibold focus:bg-white transition-all shadow-inner" 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-sm font-bold text-muted-foreground ml-1">Location</Label>
+                            <Input 
+                                disabled={!isEditing}
+                                value={editForm.location} 
+                                onChange={e => setEditForm({...editForm, location: e.target.value})} 
+                                className="h-14 rounded-2xl bg-muted/20 border-none px-6 text-lg font-semibold focus:bg-white transition-all shadow-inner" 
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm font-bold text-muted-foreground ml-1">Bio</Label>
+                        <Textarea 
+                            disabled={!isEditing}
+                            value={editForm.bio} 
+                            onChange={e => setEditForm({...editForm, bio: e.target.value})} 
+                            className="rounded-2xl bg-muted/20 border-none p-6 text-lg font-medium min-h-[100px] resize-none focus:bg-white transition-all shadow-inner" 
+                        />
+                    </div>
+                    <Button 
+                        onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
+                        className={`h-14 px-10 rounded-2xl font-bold text-lg shadow-lg transition-all ${isEditing ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:bg-muted/30"}`}
+                    >
+                        {isEditing ? "Save Changes" : "Edit Profile"}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <Switch checked={isDarkMode} onCheckedChange={handleThemeToggle} />
-            </div>
-            
-            <Separator className="bg-slate-200 dark:bg-slate-700" />
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Globe className="w-5 h-5 text-blue-500" />
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">Language</p>
-                  <p className="text-sm text-slate-500">English (India)</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="text-slate-400">
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Notifications */}
-        <Card className="border-0 shadow-lg bg-white dark:bg-slate-800/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
-              <Bell className="w-5 h-5 text-amber-500" />
-              Notifications
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-slate-400" />
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">Email Notifications</p>
-                  <p className="text-sm text-slate-500">Receive updates via email</p>
+            {/* Application Preferences */}
+            <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+              <CardHeader className="p-10 border-b bg-muted/5">
+                <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                  <Palette className="w-6 h-6 text-primary" />
+                  Preferences
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-10 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <SelectField 
+                        label="Language" 
+                        value={language} 
+                        options={["English (US)", "English (UK)", "Hindi", "Marathi", "Spanish"]} 
+                        onChange={setLanguage} 
+                        icon={Languages}
+                    />
+                    <SelectField 
+                        label="Account Visibility" 
+                        value={visibility} 
+                        options={["Public", "Private", "Friends Only"]} 
+                        onChange={setVisibility} 
+                        icon={Shield}
+                    />
+                    {/* Theme is permanently locked to Light */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-bold text-muted-foreground ml-1">Display Theme</Label>
+                        <div className="h-14 w-full bg-muted/10 rounded-2xl px-6 flex items-center justify-between border border-primary/10">
+                            <div className="flex items-center gap-3 font-semibold text-lg">
+                                <Globe className="w-5 h-5 text-primary opacity-60" />
+                                Light Mode
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-4 py-1.5 rounded-full">Always On</span>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <Label className="text-sm font-bold text-muted-foreground ml-1">Notification Controls</Label>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between p-4 bg-muted/10 rounded-2xl">
+                                <span className="font-semibold">Email Notifications</span>
+                                <Switch checked={emailNotifications} onCheckedChange={setEmailNotifications} />
+                            </div>
+                            <div className="flex items-center justify-between p-4 bg-muted/10 rounded-2xl">
+                                <span className="font-semibold">Push Notifications</span>
+                                <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <Switch checked={emailNotifications} onCheckedChange={setEmailNotifications} />
-            </div>
-            
-            <Separator className="bg-slate-200 dark:bg-slate-700" />
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Smartphone className="w-5 h-5 text-slate-400" />
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">Push Notifications</p>
-                  <p className="text-sm text-slate-500">Receive push notifications</p>
-                </div>
-              </div>
-              <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Security */}
-        <Card className="border-0 shadow-lg bg-white dark:bg-slate-800/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
-              <Shield className="w-5 h-5 text-green-500" />
-              Security
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Key className="w-5 h-5 text-slate-400" />
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">Change Password</p>
-                  <p className="text-sm text-slate-500">Update your password</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="text-slate-400">
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+            {/* Logout Section */}
+            <div className="pt-8">
+                 <Button 
+                    variant="ghost" 
+                    onClick={handleLogout}
+                    className="w-full h-16 rounded-2xl text-red-500 font-bold text-xl hover:bg-red-50 hover:text-red-600 transition-all shadow-sm"
+                 >
+                    <LogOut className="w-6 h-6 mr-4" />
+                    Logout
+                 </Button>
             </div>
-            
-            <Separator className="bg-slate-200 dark:bg-slate-700" />
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-slate-400" />
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">Two-Factor Authentication</p>
-                  <p className="text-sm text-slate-500">Add an extra layer of security</p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" className="text-green-500 border-green-500/30">
-                Enable
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Danger Zone */}
-        <Card className="border-0 shadow-lg bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <Trash2 className="w-5 h-5" />
-              Danger Zone
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-red-600 dark:text-red-400">Log Out</p>
-                <p className="text-sm text-red-400/70">Sign out from all devices</p>
-              </div>
-              <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30">
-                <LogOut className="w-4 h-4 mr-2" />
-                Log Out
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
+}
+
+function SelectField({ label, value, options, onChange, icon: Icon }: any) {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div className="space-y-2 relative">
+            <Label className="text-sm font-bold text-muted-foreground ml-1">{label}</Label>
+            <div 
+                onClick={() => setIsOpen(!isOpen)}
+                className="h-14 w-full bg-muted/20 rounded-2xl px-6 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-all font-semibold text-lg group"
+            >
+                <div className="flex items-center gap-3">
+                    <Icon className="w-5 h-5 text-primary opacity-60" />
+                    {value}
+                </div>
+                <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+            </div>
+            
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-muted z-50 overflow-hidden"
+                        >
+                            {options.map((opt: string) => (
+                                <div 
+                                    key={opt}
+                                    onClick={() => { onChange(opt); setIsOpen(false); }}
+                                    className={`px-6 py-4 hover:bg-primary/5 cursor-pointer transition-all font-medium ${value === opt ? "text-primary bg-primary/5" : "text-foreground"}`}
+                                >
+                                    {opt}
+                                </div>
+                            ))}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </div>
+    )
 }

@@ -1,8 +1,9 @@
 {
+  "/page": "app/page.js",
+  "/explore/page": "app/explore/page.js",
+  "/onboarding/page": "app/onboarding/page.js",
+  "/feed/page": "app/feed/page.js",
   "/notifications/page": "app/notifications/page.js",
   "/profile/page": "app/profile/page.js",
-  "/feed/page": "app/feed/page.js",
-  "/page": "app/page.js",
-  "/messages/page": "app/messages/page.js",
-  "/settings/page": "app/settings/page.js"
+  "/messages/page": "app/messages/page.js"
 }

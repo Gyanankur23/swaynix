@@ -5,17 +5,16 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
   TrendingUp, Users, Clock, Zap, Target, Sparkles,
-  Hash, Flame, Star, ArrowRight
+  Hash, Flame, Star, ArrowRight, ShieldCheck, MapPin
 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { AdCard } from "./ad-card";
 
-// Types for Anti-FOMO Feed
 interface Post {
   id: string;
   type: "post";
@@ -24,13 +23,14 @@ interface Post {
     name: string;
     handle: string;
     level: number;
-    avatar?: string;
+    avatar: string;
   };
   cohort: {
     id: string;
     name: string;
     color: string;
     slug: string;
+    icon: string;
   };
   content: string;
   image?: string;
@@ -40,8 +40,6 @@ interface Post {
   };
   depthScore: number;
   createdAt: string;
-  // Anti-FOMO: No public like/comment counts
-  // Only show engagement to author
 }
 
 interface Ad {
@@ -64,6 +62,7 @@ interface CohortRecommendation {
   matchScore: number;
   color: string;
   tags: string[];
+  icon: string;
 }
 
 type FeedItem = Post | Ad | CohortRecommendation;
@@ -73,283 +72,264 @@ interface AntiFomoFeedProps {
   userInterests: string[];
 }
 
-// Mock data generator for development
+const HUMAN_IMAGES = [
+  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800",
+  "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800",
+  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800",
+  "https://images.unsplash.com/photo-1522071823991-b9671f9d6f8c?w=800",
+  "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800",
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800",
+  "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800",
+  "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800",
+  "https://images.unsplash.com/photo-1573164773974-77e802a86036?w=800",
+  "https://images.unsplash.com/photo-1542744094-24638eff58bb?w=800",
+];
+
+const AVATARS = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200",
+  "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200",
+];
+
 function generateMockFeed(userInterests: string[]): FeedItem[] {
   const items: FeedItem[] = [];
-  
-  // Generate 15 posts with 1 ad every 5 posts
-  for (let i = 0; i < 15; i++) {
-    // Insert ad every 5th item
-    if (i > 0 && i % 5 === 0) {
+  const cohorts = [
+    { name: "Travel India Hub", icon: "✈️", slug: "travel-india" },
+    { name: "Code Mumbai Hub", icon: "💻", slug: "code-mumbai" },
+    { name: "Bhangra Beats Hub", icon: "💃", slug: "dance-bhangra" },
+    { name: "Delhi Foodies Hub", icon: "🍳", slug: "foodie-delhi" },
+    { name: "Startup Founder Central", icon: "🚀", slug: "startup-hub" },
+  ];
+
+  for (let i = 0; i < 20; i++) {
+    if (i > 0 && i % 4 === 0) {
       items.push({
         id: `ad-${i}`,
         type: "ad",
-        companyName: ["TechCorp AI", "DataScale", "Reactify Pro"][Math.floor(Math.random() * 3)],
-        title: ["Scale Your AI Models", "Partition Tables at Scale", "Debug React Like a Pro"][Math.floor(Math.random() * 3)],
-        body: "Enterprise-grade solutions for modern development teams.",
-        imageUrl: `https://picsum.photos/seed/ad-${i}/400/200`,
-        ctaText: "Learn More",
+        companyName: ["Decathlon India", "Tata Digital", "Reliance Hub", "Zomato Gold"][Math.floor(Math.random() * 4)],
+        title: ["Human Potential Unlocked", "Global Scaling Signal", "Direct Human Connection", "Authentic Flavor Streams"][Math.floor(Math.random() * 4)],
+        body: "Experience the next evolution of human connectivity in the platform hub.",
+        imageUrl: HUMAN_IMAGES[Math.floor(Math.random() * HUMAN_IMAGES.length)],
+        ctaText: "Synchronize",
         ctaUrl: "#",
       });
     }
-    
-    // Add cohort recommendation every 7th item
-    if (i === 7) {
+
+    if (i === 6) {
       items.push({
         id: `cohort-rec-${i}`,
         type: "cohort",
-        name: "Database Architects",
-        description: "Advanced database design, partitioning strategies, and scaling techniques.",
-        memberCount: 2340,
-        matchScore: 94,
-        color: "#3B82F6",
-        tags: ["sql", "architecture", "scaling"],
+        name: "Sustainable Living India",
+        description: "Join 4.2k citizens synchronizing on zero-waste living and organic farming signals.",
+        memberCount: 4230,
+        matchScore: 98,
+        icon: "🌱",
+        color: "#10B981",
+        tags: ["eco", "organic", "future"],
       });
     }
-    
-    // Add post
-    const topics = ["python", "react", "ai", "sql", "architecture", "scaling"];
-    const topic = topics[Math.floor(Math.random() * topics.length)];
-    
+
+    const cohort = cohorts[Math.floor(Math.random() * cohorts.length)];
     items.push({
       id: `post-${i}`,
       type: "post",
       author: {
         id: `user-${i}`,
-        name: ["Alex Chen", "Jordan Smith", "Taylor Wong", "Morgan Lee"][Math.floor(Math.random() * 4)],
-        handle: ["alexc", "jordans", "taylorw", "morganl"][Math.floor(Math.random() * 4)],
-        level: Math.floor(Math.random() * 10) + 1,
+        name: ["Gyanankur Baruah", "Aaditya Khanna", "Ishan Sharma", "Meera Nair", "Priya Sen"][Math.floor(Math.random() * 5)],
+        handle: ["gyan_hub", "aaditya_signal", "ishan_pulse", "meera_live", "priya_discovery"][Math.floor(Math.random() * 5)],
+        level: Math.floor(Math.random() * 20) + 5,
+        avatar: AVATARS[i % AVATARS.length],
       },
       cohort: {
-        id: `cohort-${topic}`,
-        name: `${topic.charAt(0).toUpperCase() + topic.slice(1)} Enthusiasts`,
-        color: ["#3B82F6", "#8B5CF6", "#EC4899", "#10B981", "#F59E0B"][Math.floor(Math.random() * 5)],
-        slug: topic,
+        id: `cohort-${cohort.slug}`,
+        name: cohort.name,
+        color: "#F97316",
+        slug: cohort.slug,
+        icon: cohort.icon,
       },
       content: [
-        "Just implemented a distributed caching layer with Redis Cluster. Latency dropped from 450ms to 12ms. The key insight: cache invalidation is harder than caching itself.",
-        "The async/await pattern that saved our scraping infrastructure: semaphore-based concurrency limiting. 10 parallel requests, zero rate limits.",
-        "After partitioning our 500M row events table by date ranges, query time dropped from 4.2s to 180ms. Your partition key MUST match your most common WHERE clause.",
-        "Real-world RSC bundle size reduction: 247KB -> 89KB. The mental model shift: Data fetching happens ONCE on the server. No useEffect waterfall.",
-        "QLoRA fine-tuning on RTX 4090 with 7B parameters. VRAM usage: 14GB -> 6GB. Same accuracy, consumer GPU accessible.",
+        "Just reached the high-intensity phase of our scaling initiative. The human latency in our discovery feed has dropped significantly. Pure human connectivity! 🚀",
+        "Exploring the hidden signal points in Himachal today. The energy here is unmatched by any bot-logic. Genuine human discovery at its peak! ⛰️",
+        "Authentic flavor synchronization in Old Delhi today. No filters, just high-bandwidth human taste experiences. You MUST try the Chandni Chowk stream! 🍲",
+        "Implementing a new governance protocol for our community hub. Focused on identity verification and signal integrity. The future follows human rules.",
+        "Beautiful moment captured during our traditional dance sync. Every movement is a high-intensity signal of our shared culture. Stay synchronized! 💃",
       ][Math.floor(Math.random() * 5)],
-      image: Math.random() > 0.5 ? `https://picsum.photos/seed/post-${i}/800/400` : undefined,
+      image: i % 1.2 === 0 ? HUMAN_IMAGES[i % HUMAN_IMAGES.length] : undefined, // ~80% images
       metadata: {
-        tags: [topic, "performance", "architecture"],
-        technical_depth: ["low", "medium", "high"][Math.floor(Math.random() * 3)] as "low" | "medium" | "high",
+        tags: [cohort.slug, "human", "discovery"],
+        technical_depth: "high",
       },
-      depthScore: Math.floor(Math.random() * 100),
-      createdAt: new Date(Date.now() - Math.random() * 86400000 * 3).toISOString(),
+      depthScore: 85 + Math.floor(Math.random() * 15),
+      createdAt: new Date(Date.now() - Math.random() * 100000000).toISOString(),
     });
   }
-  
   return items;
 }
 
-// Post Card Component
 function PostCard({ post }: { post: Post }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [showEngagementGlow, setShowEngagementGlow] = useState(false);
 
-  const handleEngage = () => {
-    setShowEngagementGlow(true);
-    setTimeout(() => setShowEngagementGlow(false), 1000);
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative"
-    >
-      <Card className="bg-gray-900 border-gray-800 overflow-hidden">
+    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="relative">
+      <Card className="bg-white border-primary/5 overflow-hidden shadow-premium rounded-[3.5rem] hover:shadow-2xl transition-all group border-t-8 border-t-primary/5">
         <CardContent className="p-0">
-          {/* Header */}
-          <div className="p-4 flex items-start gap-3">
-            <Link href={`/profile/${post.author.handle}`}>
-              <Avatar className="w-12 h-12 ring-2 ring-offset-2 ring-offset-gray-900 ring-[#00FF85]/30">
-                <AvatarFallback className="bg-gradient-to-br from-[#00FF85]/20 to-[#00FF85]/5 text-[#00FF85] font-bold">
-                  {post.author.name.split(" ").map(n => n[0]).join("")}
+          <div className="p-10 flex items-start gap-6">
+            <Link href={`/profile`}>
+              <Avatar className="w-18 h-18 border-4 border-white shadow-xl transition-transform group-hover:scale-105 active:scale-95">
+                <AvatarImage src={post.author.avatar} className="object-cover" />
+                <AvatarFallback className="bg-swaynix-gradient text-foreground font-black italic">
+                   {post.author.name[0]}
                 </AvatarFallback>
               </Avatar>
             </Link>
-            
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Link href={`/profile/${post.author.handle}`}>
-                  <span className="font-bold text-white hover:underline">
+              <div className="flex items-center gap-3 flex-wrap">
+                <Link href={`/profile`}>
+                  <span className="font-black italic text-2xl text-foreground hover:text-primary transition-colors tracking-tighter leading-none">
                     {post.author.name}
                   </span>
                 </Link>
-                <Badge className="bg-[#00FF85]/10 text-[#00FF85] border-[#00FF85]/30 text-xs">
-                  Lvl {post.author.level}
+                <Badge className="bg-primary/20 text-foreground border-none font-black italic text-[10px] uppercase tracking-[0.2em] px-4 py-1.5 rounded-full leading-none shadow-sm">
+                   CITIZEN LVL {post.author.level}
                 </Badge>
-                <span className="text-gray-500 text-sm">@{post.author.handle}</span>
-                <span className="text-gray-600">·</span>
-                <span className="text-gray-500 text-sm">
-                  {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-                </span>
+                <div className="w-full mt-2 flex items-center gap-3">
+                   <span className="text-muted-foreground font-black italic text-[10px] uppercase tracking-widest opacity-60">SIGNAL: @{post.author.handle}</span>
+                   <span className="text-muted-foreground/30 font-black italic text-sm">·</span>
+                   <span className="text-muted-foreground font-black italic text-[10px] uppercase tracking-widest opacity-60">
+                     {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                   </span>
+                </div>
               </div>
-              
-              <Link href={`/cohort/${post.cohort.slug}`}>
-                <Badge 
-                  className="mt-1 text-white border-0 hover:opacity-80 transition-opacity"
-                  style={{ backgroundColor: post.cohort.color }}
-                >
-                  {post.cohort.name}
-                </Badge>
-              </Link>
             </div>
-            
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
-              <MoreHorizontal className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-4">
+               <div className="hidden sm:flex flex-col items-end">
+                  <span className="text-[9px] font-black italic text-primary uppercase tracking-[0.2em] leading-none mb-1">INTENSITY</span>
+                  <span className="text-foreground font-black italic text-lg leading-none">{post.depthScore}%</span>
+               </div>
+               <Button variant="ghost" size="icon" className="h-14 w-14 text-muted-foreground hover:bg-primary/5 rounded-2xl transition-all">
+                 <MoreHorizontal className="w-8 h-8" />
+               </Button>
+            </div>
           </div>
 
-          {/* Content */}
-          <div className="px-4 pb-3">
-            <p className="text-white text-base leading-relaxed whitespace-pre-wrap">
-              {post.content}
+          <div className="px-10 pb-8">
+             <Link href={`/cohort/${post.cohort.slug}`}>
+                <div className="inline-flex items-center gap-3 px-6 py-2.5 bg-primary/5 hover:bg-white hover:shadow-xl rounded-full border border-primary/5 transition-all mb-6 group/badge">
+                   <div className="text-2xl transition-transform group-hover/badge:scale-125">{post.cohort.icon}</div>
+                   <span className="font-black italic text-sm text-foreground uppercase tracking-widest leading-none">Synchronization Point: {post.cohort.name}</span>
+                </div>
+             </Link>
+            <p className="text-foreground text-3xl font-black italic leading-[1.3] tracking-tighter">
+              "{post.content}"
             </p>
-            
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mt-3">
+            <div className="flex flex-wrap gap-4 mt-8">
               {post.metadata.tags.map((tag) => (
-                <span key={tag} className="text-[#00FF85]/60 text-sm">
-                  #{tag}
+                <span key={tag} className="px-4 py-1.5 bg-primary/5 rounded-full text-primary font-black italic text-[10px] uppercase tracking-widest flex items-center gap-2 border border-primary/5 shadow-sm">
+                  <Hash className="w-3.5 h-3.5" />
+                  {tag}
                 </span>
               ))}
             </div>
           </div>
 
-          {/* Image */}
           {post.image && (
-            <div className="relative overflow-hidden">
-              <img 
-                src={post.image} 
-                alt="Post content"
-                className="w-full h-64 md:h-96 object-cover"
-              />
+            <div className="px-10 pb-10">
+               <motion.div whileHover={{ scale: 1.01 }} className="relative overflow-hidden rounded-[3rem] shadow-premium border-8 border-white ring-1 ring-primary/5 lg:h-[500px]">
+                <img src={post.image} alt="High Intensity Image Signal" className="w-full h-full object-cover" />
+                <div className="absolute top-6 right-6 p-4 bg-white/40 backdrop-blur-3xl rounded-3xl border border-white/50 text-foreground font-black italic text-[10px] flex items-center gap-3 uppercase tracking-widest shadow-xl">
+                   <MapPin className="w-4 h-4 text-primary" />
+                   Location Sync Active
+                </div>
+              </motion.div>
             </div>
           )}
 
-          {/* Engagement Bar - Anti-FOMO: No public counts */}
-          <div className="p-4 border-t border-gray-800">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                {/* Like - Anonymous, no count shown */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => {
-                    setIsLiked(!isLiked);
-                    handleEngage();
-                  }}
-                  className={`flex items-center gap-2 transition-colors ${
-                    isLiked ? "text-rose-500" : "text-gray-500 hover:text-rose-500"
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-                  <span className="text-sm font-medium">{isLiked ? "Liked" : "Like"}</span>
-                </motion.button>
-
-                {/* Comment - No count shown publicly */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleEngage}
-                  className="flex items-center gap-2 text-gray-500 hover:text-[#00FF85] transition-colors"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">Reply</span>
-                </motion.button>
-
-                {/* Share */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors"
-                >
-                  <Share2 className="w-5 h-5" />
-                  <span className="text-sm font-medium">Share</span>
-                </motion.button>
-              </div>
-
-              {/* Save */}
+          <div className="p-8 bg-primary/[0.04] border-t border-primary/5 flex items-center justify-between">
+            <div className="flex items-center gap-10">
               <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsSaved(!isSaved)}
-                className={`transition-colors ${
-                  isSaved ? "text-[#00FF85]" : "text-gray-500 hover:text-[#00FF85]"
-                }`}
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
+                onClick={() => { setIsLiked(!isLiked); setShowEngagementGlow(true); setTimeout(() => setShowEngagementGlow(false), 1000); }}
+                className={`flex items-center gap-4 transition-all ${isLiked ? "text-primary scale-110" : "text-muted-foreground hover:text-primary"}`}
               >
-                <Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />
+                <div className={`p-4 rounded-full transition-all ${isLiked ? "bg-primary text-white shadow-xl shadow-primary/30" : "bg-white shadow-premium"}`}>
+                   <Heart className={`w-8 h-8 ${isLiked ? "fill-current" : ""}`} />
+                </div>
+                <span className="font-black italic text-xl tracking-tighter leading-none">{isLiked ? "Synchronized" : "Synchronize"}</span>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
+                className="flex items-center gap-4 text-muted-foreground hover:text-primary transition-all group"
+              >
+                <div className="p-4 bg-white rounded-full shadow-premium transition-all group-hover:shadow-xl">
+                   <MessageCircle className="w-8 h-8" />
+                </div>
+                <span className="font-black italic text-xl tracking-tighter leading-none">Join Stream</span>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
+                className="flex items-center gap-4 text-muted-foreground hover:text-primary transition-all group"
+              >
+                <div className="p-4 bg-white rounded-full shadow-premium transition-all group-hover:shadow-xl">
+                   <Share2 className="w-8 h-8" />
+                </div>
+                <span className="font-black italic text-xl tracking-tighter leading-none">Export Signal</span>
               </motion.button>
             </div>
+            
+            <motion.button
+              whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setIsSaved(!isSaved)}
+              className={`transition-all p-5 rounded-2xl ${isSaved ? "bg-swaynix-gradient text-foreground shadow-2xl border border-black/5" : "bg-white text-muted-foreground hover:text-primary shadow-premium hover:shadow-xl border border-primary/5"}`}
+            >
+              <Bookmark className={`w-8 h-8 ${isSaved ? "fill-current" : ""}`} />
+            </motion.button>
           </div>
-
-          {/* Engagement Score Glow Effect */}
-          <AnimatePresence>
-            {showEngagementGlow && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 pointer-events-none border-2 border-[#00FF85] rounded-xl"
-                style={{ boxShadow: "0 0 30px rgba(0,255,133,0.3)" }}
-              />
-            )}
-          </AnimatePresence>
         </CardContent>
       </Card>
     </motion.div>
   );
 }
 
-// Cohort Recommendation Card
 function CohortRecCard({ cohort }: { cohort: CohortRecommendation }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-4"
-    >
-      <div className="flex items-start gap-3">
-        <div 
-          className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0"
-          style={{ backgroundColor: cohort.color }}
-        >
-          {cohort.name.charAt(0)}
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border-t-8 border-t-primary border border-primary/5 rounded-[4rem] p-12 shadow-premium hover:shadow-2xl transition-all relative overflow-hidden group">
+      <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none group-hover:scale-150 transition-transform duration-1000" />
+      
+      <div className="flex items-start gap-10 relative z-10">
+        <div className="w-24 h-24 rounded-[2rem] bg-swaynix-gradient flex items-center justify-center text-foreground font-black italic text-5xl shrink-0 shadow-2xl border-4 border-white transition-transform group-hover:rotate-12">
+          {cohort.icon}
         </div>
-        
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-white font-bold">{cohort.name}</span>
-            <Badge className="bg-[#00FF85]/10 text-[#00FF85] text-xs">
-              <Target className="w-3 h-3 mr-1" />
-              {cohort.matchScore}% Match
-            </Badge>
+        <div className="flex-1 space-y-6">
+          <div>
+             <div className="flex items-center gap-4">
+                <span className="text-5xl font-black italic text-foreground tracking-tighter leading-none">{cohort.name}</span>
+                <Badge className="bg-primary/20 text-foreground border-none font-black italic text-[10px] uppercase tracking-[0.3em] px-6 py-2 rounded-full shadow-xl">REC: 100% MATCH</Badge>
+             </div>
+             <p className="text-muted-foreground font-black italic text-xs uppercase tracking-widest mt-4 opacity-40">COMMUNITY SYNCHRONIZATION POINT</p>
           </div>
-          
-          <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-            {cohort.description}
-          </p>
-          
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-            <span className="flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              {cohort.memberCount.toLocaleString()} members
-            </span>
+          <p className="text-muted-foreground font-medium text-2xl leading-relaxed italic line-clamp-3">"{cohort.description}"</p>
+          <div className="flex items-center gap-8 py-2">
+             <div className="flex items-center gap-3">
+                <Users className="w-8 h-8 text-primary" />
+                <span className="font-black italic text-2xl text-foreground tracking-tighter leading-none">{cohort.memberCount.toLocaleString()} <span className="text-muted-foreground opacity-40">Citizens</span></span>
+             </div>
+             <div className="w-1.5 h-1.5 bg-primary/20 rounded-full" />
+             <div className="flex items-center gap-3">
+                <Target className="w-8 h-8 text-primary" />
+                <span className="font-black italic text-2xl text-foreground tracking-tighter leading-none">{cohort.matchScore}% <span className="text-muted-foreground opacity-40">Signal Match</span></span>
+             </div>
           </div>
-          
-          <div className="flex gap-2">
-            <Button 
-              className="flex-1 bg-[#00FF85] text-black hover:bg-[#00FF85]/90 font-bold"
-            >
-              Join Cohort
-              <ArrowRight className="w-4 h-4 ml-2" />
+          <div className="flex gap-6 pt-4">
+            <Button className="flex-1 h-20 bg-swaynix-gradient text-foreground border border-black/5 font-black italic rounded-[2rem] shadow-2xl hover:translate-y-[-4px] transition-all text-2xl tracking-tighter group/btn">
+               <Zap className="w-8 h-8 mr-4 group-hover/btn:animate-pulse" />
+               Initialize Synchronization
             </Button>
-            <Button variant="outline" className="border-gray-600 text-gray-400">
-              Skip
-            </Button>
+            <Button variant="ghost" className="px-10 h-20 rounded-[2rem] text-muted-foreground font-black italic text-xl hover:bg-primary/5 transition-all">Dismiss Signal</Button>
           </div>
         </div>
       </div>
@@ -357,58 +337,71 @@ function CohortRecCard({ cohort }: { cohort: CohortRecommendation }) {
   );
 }
 
-// Main Feed Component
 export function AntiFomoFeed({ userId, userInterests }: AntiFomoFeedProps) {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call
     setTimeout(() => {
       setFeedItems(generateMockFeed(userInterests));
       setIsLoading(false);
-    }, 800);
+    }, 1200);
   }, [userInterests]);
 
   if (isLoading) {
     return (
-      <div className="space-y-4 p-4">
+      <div className="space-y-12 p-10 max-w-5xl mx-auto">
+        <div className="text-center py-20 space-y-6">
+           <div className="w-20 h-20 bg-primary/10 rounded-full border border-primary/20 mx-auto animate-spin flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-primary" />
+           </div>
+           <p className="text-2xl font-black italic text-primary animate-pulse tracking-tighter">Calibrating High-Intensity Signals...</p>
+        </div>
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-gray-900 rounded-xl h-48 animate-pulse" />
+          <div key={i} className="bg-primary/[0.03] rounded-[4rem] h-[500px] animate-pulse border border-primary/5" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="pb-24">
-      {/* Feed Header */}
-      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-sm border-b border-gray-800 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-white font-bold text-lg flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#00FF85]" />
-            Recommended For You
-          </h2>
-          <Badge variant="outline" className="border-[#00FF85]/30 text-[#00FF85]">
-            Anti-FOMO Mode
-          </Badge>
+    <div className="pb-40 font-jakarta bg-white relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-[1000px] bg-primary/[0.01] blur-[150px] rounded-full pointer-events-none" />
+      
+      {/* Stream Header */}
+      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-3xl border-b border-primary/10 px-12 py-10 shadow-premium relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-swaynix-gradient" />
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="space-y-2">
+             <div className="flex items-center gap-4">
+                <div className="p-3 bg-swaynix-gradient rounded-2xl shadow-xl border border-black/5"><Sparkles className="w-8 h-8 text-foreground" /></div>
+                <h2 className="text-5xl font-black italic text-foreground tracking-tighter leading-none">Universal <span className="text-primary italic">Signal</span> Stream</h2>
+             </div>
+             <p className="text-muted-foreground font-black italic text-xs uppercase tracking-[0.3em] opacity-40 ml-20">HUMAN RELEVANCE FILTER: ENGAGEMENT LOCKED</p>
+          </div>
+          <div className="flex items-center gap-6">
+             <div className="hidden md:flex flex-col items-end border-r border-primary/10 pr-8">
+                <span className="text-[10px] font-black italic text-muted-foreground uppercase tracking-widest leading-none mb-2">CALIBRATION POINT</span>
+                <span className="text-foreground font-black italic text-2xl leading-none">BOMBAY-DELHI-BLR</span>
+             </div>
+             <Badge className="bg-swaynix-gradient text-foreground border border-black/5 font-black italic text-xs uppercase tracking-widest px-8 py-4 rounded-[1.5rem] shadow-premium hover:scale-105 transition-all cursor-crosshair">
+                ANTI-FOMO ACTIVE
+             </Badge>
+          </div>
         </div>
-        <p className="text-gray-500 text-sm mt-1">
-          Content ranked by relevance to your interests, not popularity
-        </p>
       </div>
 
-      {/* Feed Items */}
-      <div className="space-y-4 p-4">
+      {/* Feed Content */}
+      <div className="space-y-16 p-10 md:p-12 max-w-6xl mx-auto relative z-10">
         <AnimatePresence mode="popLayout">
           {feedItems.map((item, index) => (
-            <motion.div
-              key={`${item.type}-${item.id}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ delay: index * 0.05 }}
-              layout
+            <motion.div 
+               key={`${item.type}-${item.id}`} 
+               initial={{ opacity: 0, scale: 0.9, y: 100 }} 
+               animate={{ opacity: 1, scale: 1, y: 0 }} 
+               exit={{ opacity: 0, scale: 0.9 }} 
+               transition={{ type: "spring", stiffness: 100, damping: 15, delay: index * 0.1 }}
+               layout
             >
               {item.type === "post" && <PostCard post={item} />}
               {item.type === "ad" && <AdCard ad={item} />}
@@ -418,11 +411,15 @@ export function AntiFomoFeed({ userId, userInterests }: AntiFomoFeedProps) {
         </AnimatePresence>
       </div>
 
-      {/* Load More */}
-      <div className="p-4 text-center">
-        <Button variant="outline" className="border-gray-700 text-gray-400 hover:text-white">
-          Load More
-        </Button>
+      {/* Persistence Controls */}
+      <div className="p-20 text-center relative z-10">
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+           <Button className="h-24 px-20 bg-white border-2 border-primary/10 text-muted-foreground font-black italic text-3xl tracking-tighter hover:bg-primary/5 hover:text-primary transition-all rounded-[2.5rem] shadow-premium">
+              <Zap className="w-10 h-10 mr-6" />
+              Request High-Bandwidth Signals
+           </Button>
+        </motion.div>
+        <p className="mt-8 text-muted-foreground font-black italic text-sm uppercase tracking-widest opacity-30">END OF CURRENT SIGNAL STREAM. RE-CALIBRATE TO CONTINUE.</p>
       </div>
     </div>
   );

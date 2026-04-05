@@ -2,94 +2,156 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   SWAYNIX — PERMANENT LIGHT THEME
+   Background: White  |  Text: Near-Black  |  Primary: Orange
+   Dark mode is completely disabled at every possible level.
+   ============================================================ */
+
 @layer base {
-  :root {
-    /* Clean Light Theme - Professional White/Gray */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 210 100% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 15%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 210 100% 45%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+  /* Override everything — :root, .dark, prefers-color-scheme */
+  :root,
+  .dark,
+  [data-theme="dark"],
+  [data-mode="dark"] {
+    color-scheme: light !important;
+
+    --background:         0 0% 100%;           /* #ffffff — white */
+    --foreground:         220 13% 13%;          /* #1a1f2e — near-black, very visible */
+    --card:               0 0% 100%;
+    --card-foreground:    220 13% 13%;
+    --popover:            0 0% 100%;
+    --popover-foreground: 220 13% 13%;
+
+    --primary:            24.6 95% 53.1%;       /* orange */
+    --primary-foreground: 0 0% 100%;            /* white text on orange */
+
+    --secondary:          220 14% 96%;          /* very light gray */
+    --secondary-foreground: 220 13% 13%;
+
+    --muted:              220 14% 96%;
+    --muted-foreground:   220 9% 46%;           /* medium gray — readable */
+
+    --accent:             24 100% 97%;          /* faint peach tint */
+    --accent-foreground:  24.6 95% 40%;
+
+    --destructive:        0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 210 100% 45%;
-    --radius: 0.25rem;
 
-    /* Custom surface tokens */
-    --surface: 0 0% 100%;
-    --surface-elevated: 0 0% 98%;
-  }
-
-  /* Dark mode disabled - use light theme always */
-  .dark {
-    /* Same as light theme */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 210 100% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 15%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 210 100% 45%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 210 100% 45%;
-
-    --surface: 0 0% 100%;
-    --surface-elevated: 0 0% 98%;
+    --border:             220 13% 91%;
+    --input:              220 13% 91%;
+    --ring:               24.6 95% 53.1%;
+    --radius:             1.5rem;
   }
 }
 
 @layer base {
+  /* Nuclear-level light enforcement */
+  html {
+    color-scheme: light !important;
+    background: #ffffff !important;
+    color: #1a1f2e !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #1a1f2e !important;
+    font-family: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply font-medium;
+  }
+
   * {
     @apply border-border;
   }
-  html {
-    @apply scroll-smooth;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  }
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+
+  /* Headings inherit — do not force !important (breaks hero / colored surfaces) */
+  p, span, li, label, a {
+    color: inherit;
   }
 }
 
-@layer components {
-  /* Clean card surface */
-  .surface-card {
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-  }
+/* ============================================================
+   Mandatory white app shell (cannot be overridden by utilities)
+   ============================================================ */
+html.light,
+html {
+  background-color: #ffffff !important;
+}
 
-  /* Elevated surface */
-  .surface-elevated {
-    background-color: hsl(var(--surface-elevated));
-    border: 1px solid hsl(var(--border));
+body {
+  background-color: #ffffff !important;
+}
+
+#__next {
+  background-color: #ffffff !important;
+  min-height: 100%;
+}
+
+body > div {
+  background-color: #ffffff !important;
+}
+
+main {
+  background-color: #ffffff !important;
+  color: #1a1f2e;
+}
+
+/* ============================================================
+   Override any prefers-color-scheme: dark from OS
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+    --background:         0 0% 100% !important;
+    --foreground:         220 13% 13% !important;
+    --card:               0 0% 100% !important;
+    --card-foreground:    220 13% 13% !important;
+    --muted:              220 14% 96% !important;
+    --muted-foreground:   220 9% 46% !important;
+    --border:             220 13% 91% !important;
+    --input:              220 13% 91% !important;
+  }
+  html, body {
+    background-color: #ffffff !important;
+    color: #1a1f2e !important;
   }
 }
 
+/* ============================================================
+   Utilities
+   ============================================================ */
 @layer utilities {
-  /* Clean subtle shadow */
-  .shadow-soft {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  .bg-swaynix-gradient {
+    background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DA 50%, #FFF5F0 100%) !important;
   }
+
+  .text-shadow-premium {
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-premium {
+    box-shadow:
+      0 20px 40px -10px rgba(0, 0, 0, 0.07),
+      0 8px 16px -4px rgba(0, 0, 0, 0.04);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.07);
+  }
+
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 }
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+::-webkit-scrollbar            { width: 5px; }
+::-webkit-scrollbar-track      { background: #f5f5f5; }
+::-webkit-scrollbar-thumb      { background: rgba(249, 115, 22, 0.15); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover{ background: rgba(249, 115, 22, 0.35); }
