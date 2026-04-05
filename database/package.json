@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "echo 'Database ready'",
     "dev": "echo 'Database has no dev server - use npm run seed or npm run schema'",
     "seed": "node seed.js",
     "schema": "psql $DATABASE_URL -f schema.sql"
