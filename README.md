@@ -1,6 +1,6 @@
 # Swaynix
 
-**Anti-FOMO Community Platform** - Discover meaningful cohorts based on interests, not popularity.
+**Anti-FOMO Community Platform** - Discover meaningful cohorts based on interests, not popularity. 
 
 ## 🚀 Key Features
 
