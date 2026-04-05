@@ -376,6 +376,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback((userData: User) => {
     setUser(userData);
     localStorage.setItem("auth_user", JSON.stringify(userData));
+    
+    // Send welcome-back email via webhook (only once per session)
+    if (!emailedUsers.welcomeBack.has(userData.email)) {
+      sendEmail(userData.email, userData.name, "welcome-back");
+      emailedUsers.welcomeBack.add(userData.email);
+    }
   }, []);
 
   const signup = useCallback((userData: Omit<User, 'id' | 'role' | 'avatar' | 'level'>) => {
@@ -392,6 +398,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     setUser(newUser);
     localStorage.setItem("auth_user", JSON.stringify(newUser));
+    
+    // Send welcome email via webhook
+    sendEmail(newUser.email, newUser.name, "welcome");
+    emailedUsers.welcome.add(newUser.email);
   }, []);
 
   const toggleFavorite = useCallback((postId: string) => {
