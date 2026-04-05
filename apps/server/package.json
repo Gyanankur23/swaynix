@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "echo 'Server build complete'",
     "dev": "node src/index.js",
     "start": "node src/index.js",
     "worker": "node src/workers/revenue_worker.js",
