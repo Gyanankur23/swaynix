@@ -61,20 +61,20 @@ Swaynix reimagines social connectivity through an **Anti-FOMO lens** — priorit
 │                        SWAYNIX PLATFORM                         │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐  │
-│  │   Next.js    │◄────►│   Express    │◄────►│  PostgreSQL  │  │
-│  │  15 (Web)    │      │  API Server  │      │   (JSONB)    │  │
-│  └──────────────┘      └──────────────┘      └──────────────┘  │
-│         │                      │                      │          │
-│    ┌────┴────┐           ┌────┴────┐          ┌────┴────┐     │
-│    │  ISR    │           │ Helmet  │          │  GIN    │     │
-│    │ Cache   │           │   CSP   │          │ Indexes │     │
-│    └─────────┘           └─────────┘          └─────────┘     │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐   │
+│  │   Next.js    │◄────►│   Express    │◄────►│  PostgreSQL  │   │
+│  │  15 (Web)    │      │  API Server  │      │   (JSONB)    │   │
+│  └──────────────┘      └──────────────┘      └──────────────┘   │
+│         │                     │                   │             │
+│    ┌────┴────┐           ┌────┴────┐          ┌────┴────┐       │
+│    │  ISR    │           │ Helmet  │          │  GIN    │       │
+│    │ Cache   │           │   CSP   │          │ Indexes │       │
+│    └─────────┘           └─────────┘          └─────────┘       │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │              Revenue Worker Queue                        │   │
-│  │         (SKIP LOCKED Pattern for Safety)                 │   │
-│  └─────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │              Revenue Worker Queue                       │    │
+│  │         (SKIP LOCKED Pattern for Safety)                │    │
+│  └─────────────────────────────────────────────────────────┘    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -479,7 +479,6 @@ git push origin feature/amazing-feature
 
 Built with ❤️ for authentic human connection
 
-[![Twitter](https://img.shields.io/badge/Twitter-@swaynix-1DA1F2?style=flat&logo=twitter)](https://twitter.com/swaynix)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Swaynix-0A66C2?style=flat&logo=linkedin)](https://linkedin.com/company/swaynix)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Swaynix-0A66C2?style=flat&logo=linkedin)](https://www.linkedin.com/in/gyanankur-baruah-797205338/)
 
 </div>
