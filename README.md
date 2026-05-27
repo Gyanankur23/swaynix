@@ -23,24 +23,25 @@
 
 <!-- MAIN HERO HEADER -->
 <p align="center">
-  <img src="public/logo/Screenshot 2026-05-04 140433.jpg" width="100%" />
+  <img src="public/logo/Screenshot 2026-05-04 140433.jpg" alt="Swaynix Hero Banner" width="100%" />
 </p>
 
 ---
 
-### Project Screenshots
+### 📱 Project Screenshots
+
 <p align="center">
-  <img src="public/logo/Screenshot 2026-05-04 140209.png"  width="49"/>
-  <img src="public/logo/Screenshot 2026-05-04 140442.png" width="49%" />
+  <img src="public/logo/Screenshot 2026-05-04 140209.png" alt="Dashboard View" width="49%" />
+  <img src="public/logo/Screenshot 2026-05-04 140442.png" alt="Feature View 1" width="49%" />
 </p>
 
 <p align="center">
-  <img src="public/logo/Screenshot 2026-05-04 140508.png" width="49%" />
-  <img src="public/logo/Screenshot 2026-05-04 140519.png" width="49%" />
+  <img src="public/logo/Screenshot 2026-05-04 140508.png" alt="Feature View 2" width="49%" />
+  <img src="public/logo/Screenshot 2026-05-04 140519.png" alt="Analytics View" width="49%" />
 </p>
 
 <p align="center">
-  <img src="public/logo/Screenshot 2026-05-04 140529.png" width="100%" />
+  <img src="public/logo/Screenshot 2026-05-04 140529.png" alt="System Overview" width="100%" />
 </p>
 
 
