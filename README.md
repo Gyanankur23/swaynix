@@ -30,7 +30,7 @@
 
 ### Project Screenshots
 <p align="center">
-  <img src="public/logo/Screenshot 2026-05-04 140209.png" alt="Main Header" width="100"/>
+  <img src="public/logo/Screenshot 2026-05-04 140209.png"  width="49"/>
   <img src="public/logo/Screenshot 2026-05-04 140442.png" width="49%" />
 </p>
 
